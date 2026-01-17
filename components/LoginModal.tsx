@@ -78,7 +78,7 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
                 console.log('Email:', email);
                 console.log('Year of Study:', yearOfStudy);
                 console.log('Degree:', degree);
-                
+
                 // Sign up the user without email confirmation for development
                 const { data, error } = await supabase.auth.signUp({
                     email,
@@ -112,10 +112,10 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
                 if (data.user && data.session) {
                     console.log('User created successfully:', data.user.id);
                     console.log('Session established:', data.session);
-                    
+
                     // Wait for auth to settle
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    
+
                     // Insert profile with all required fields
                     console.log('Creating profile...');
                     const { data: insertData, error: profileError } = await supabase
@@ -133,7 +133,7 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
                             proofs: {}
                         })
                         .select();
-                    
+
                     if (profileError) {
                         console.error('Profile error details:', {
                             message: profileError.message,
@@ -225,8 +225,8 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
 
                 {/* Minecraft Logo Style Title */}
                 <div className="h-fit text-center mb-8 relative">
-                    <h1 className="text-6xl text-gray-800 font-bold absolute top-1 left-1 w-full select-none opacity-50">NUS Achievements</h1>
-                    <h1 className="text-6xl text-white font-bold relative z-10 select-none drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">NUS Achievements</h1>
+                    <h1 className="text-6xl text-gray-800 font-bold absolute top-1 left-1 w-full select-none opacity-50">XP NUS</h1>
+                    <h1 className="text-6xl text-white font-bold relative z-10 select-none drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">XP NUS</h1>
                     <p className="text-yellow-400 mt-2 animate-bounce text-xl tracking-wider">Surviving the Bell Curve!</p>
                 </div>
 

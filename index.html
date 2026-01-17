@@ -1,33 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NUS Achievements</title>
+    <title>XP NUS</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      rel="stylesheet"
+    />
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              pixel: ['"VT323"', 'monospace'],
+              pixel: ['"VT323"', "monospace"],
             },
             colors: {
               mc: {
-                bg: '#0a0a0a', // Modern Dark
-                panel: '#171717', // Dark Panel
-                border: '#262626', // Dark border
-                green: '#5D8D42', // Success green
-                darkGreen: '#41622d',
-                yellow: '#FFFF55', // Minecraft Yellow text
-                gold: '#D4AF37', // Royal Gold
-                goldDim: '#8C7321', // Dim Gold
-              }
-            }
-          }
-        }
-      }
+                bg: "#0a0a0a", // Modern Dark
+                panel: "#171717", // Dark Panel
+                border: "#262626", // Dark border
+                green: "#5D8D42", // Success green
+                darkGreen: "#41622d",
+                yellow: "#FFFF55", // Minecraft Yellow text
+                gold: "#D4AF37", // Royal Gold
+                goldDim: "#8C7321", // Dim Gold
+              },
+            },
+          },
+        },
+      };
     </script>
     <style>
       /* Custom Scrollbar for Webkit */
@@ -36,26 +41,27 @@
         height: 12px;
       }
       ::-webkit-scrollbar-track {
-        background: #0a0a0a; 
+        background: #0a0a0a;
       }
       ::-webkit-scrollbar-thumb {
-        background: #262626; 
+        background: #262626;
         border: 2px solid #0a0a0a;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #404040; 
+        background: #404040;
       }
       body {
         image-rendering: pixelated;
       }
-      
+
       /* Modern Background Patterns */
       .bg-grid-pattern {
-        background-image: linear-gradient(to right, #ffffff05 1px, transparent 1px),
-                          linear-gradient(to bottom, #ffffff05 1px, transparent 1px);
+        background-image:
+          linear-gradient(to right, #ffffff05 1px, transparent 1px),
+          linear-gradient(to bottom, #ffffff05 1px, transparent 1px);
         background-size: 40px 40px;
       }
-      
+
       .bg-dot-pattern {
         background-image: radial-gradient(#ffffff15 1px, transparent 1px);
         background-size: 24px 24px;
@@ -63,8 +69,19 @@
 
       /* Gold Glow Animation */
       @keyframes gold-pulse {
-        0%, 100% { box-shadow: 0 0 5px #D4AF37, inset 0 0 5px #D4AF37; border-color: #D4AF37; }
-        50% { box-shadow: 0 0 15px #D4AF37, inset 0 0 10px #D4AF37; border-color: #FFF; }
+        0%,
+        100% {
+          box-shadow:
+            0 0 5px #d4af37,
+            inset 0 0 5px #d4af37;
+          border-color: #d4af37;
+        }
+        50% {
+          box-shadow:
+            0 0 15px #d4af37,
+            inset 0 0 10px #d4af37;
+          border-color: #fff;
+        }
       }
       .animate-gold-pulse {
         animation: gold-pulse 3s infinite;
@@ -72,34 +89,34 @@
 
       /* Utility to hide scrollbars */
       .no-scrollbar::-webkit-scrollbar {
-          display: none;
+        display: none;
       }
       .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.3.1",
-    "react/": "https://esm.sh/react@18.3.1/",
-    "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
-    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "lucide-react": "https://esm.sh/lucide-react@0.454.0?deps=react@18.3.1",
-    "recharts": "https://esm.sh/recharts@2.13.0?deps=react@18.3.1,react-dom@18.3.1",
-    "framer-motion": "https://esm.sh/framer-motion@11.0.8?deps=react@18.3.1,react-dom@18.3.1",
-    "clsx": "https://esm.sh/clsx@2.1.1",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@2.3.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.3.1",
+          "react/": "https://esm.sh/react@18.3.1/",
+          "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+          "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+          "lucide-react": "https://esm.sh/lucide-react@0.454.0?deps=react@18.3.1",
+          "recharts": "https://esm.sh/recharts@2.13.0?deps=react@18.3.1,react-dom@18.3.1",
+          "framer-motion": "https://esm.sh/framer-motion@11.0.8?deps=react@18.3.1,react-dom@18.3.1",
+          "clsx": "https://esm.sh/clsx@2.1.1",
+          "tailwind-merge": "https://esm.sh/tailwind-merge@2.3.0",
+          "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="/index.css" />
+  </head>
   <body class="bg-mc-bg text-gray-200 font-pixel antialiased overflow-hidden">
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
