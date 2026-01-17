@@ -39,7 +39,7 @@ export const AchievementListModal: React.FC<Props> = ({ onClose, onSelectAchieve
   }, [progress.unlockedIds]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
       <div className="relative w-full max-w-4xl bg-neutral-900 border-2 border-mc-gold shadow-[0_0_50px_rgba(212,175,55,0.2)] rounded-lg overflow-hidden flex flex-col h-[85vh]">
             
             {/* Header */}

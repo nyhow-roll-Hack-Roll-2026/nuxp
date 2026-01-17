@@ -610,30 +610,31 @@ const App: React.FC = () => {
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                     <div className="text-right hidden md:block">
                         <p className="text-xs text-mc-goldDim uppercase tracking-widest">Current Session</p>
                         <p className="text-xl text-gray-200">Year {user?.year}, Sem 1</p>
                     </div>
 
-                    <MinecraftButton onClick={() => setShowSearch(true)} className="flex items-center gap-2" variant="default">
-                        <Search size={20} />
+                    <MinecraftButton onClick={() => setShowSearch(true)} className="flex items-center gap-2 h-12" variant="default">
+                        <Search size={19} />
                     </MinecraftButton>
 
                     {/* Co-op Invites Mail Button */}
-                    <button
+                    <MinecraftButton
                         onClick={() => setShowPendingInvites(true)}
-                        className="relative h-20 px-3 flex items-center justify-center bg-purple-900/60 border-2 border-purple-500/50 rounded hover:bg-purple-600/40 hover:border-purple-400 transition-all"
+                        className="relative flex items-center gap-2 h-12"
+                        variant="purple"
                     >
-                        <Mail size={20} className="text-purple-300" />
+                        <Mail size={19} />
                         {pendingInviteCount > 0 && (
                             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
                                 {pendingInviteCount}
                             </span>
                         )}
-                    </button>
+                    </MinecraftButton>
 
-                    <MinecraftButton onClick={() => setShowInventory(true)} className="hidden sm:flex items-center gap-2 h-20" variant="green">
+                    <MinecraftButton onClick={() => setShowInventory(true)} className="hidden sm:flex items-center gap-2 h-12" variant="green">
                         <Package size={20} />
                         INVENTORY
                     </MinecraftButton>
@@ -685,9 +686,19 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Achievement Search Overlay (Expandable) */}
-                    <div className="absolute top-4 right-4 z-30 pointer-events-auto">
+                    <div className="absolute top-4 right-4 z-30 pointer-events-auto flex items-start gap-2">
+                        {/* List Button - matches search box collapsed size */}
+                        <button
+                            onClick={() => setShowAchievementList(true)}
+                            className="w-[44px] h-[44px] flex items-center justify-center bg-black/80 border-2 border-white/20 rounded-sm shadow-lg backdrop-blur-sm hover:border-mc-gold hover:bg-mc-gold/20 transition-all duration-300"
+                            title="Quest Log"
+                        >
+                            <List size={18} className="text-gray-400" />
+                        </button>
+
+                        {/* Search Box */}
                         <div className="relative group">
-                            <div className={`flex items-center bg-black/80 border-2 rounded-sm p-1 shadow-lg backdrop-blur-sm transition-all duration-300 ${achievementSearchQuery ? 'border-mc-gold w-64' : 'border-white/20 w-10 hover:w-64 focus-within:w-64 overflow-hidden'}`}>
+                            <div className={`flex items-center bg-black/80 border-2 rounded-sm p-1 shadow-lg backdrop-blur-sm transition-all duration-300 h-[44px] ${achievementSearchQuery ? 'border-mc-gold w-64' : 'border-white/20 w-[44px] hover:w-64 focus-within:w-64 overflow-hidden'}`}>
                                 <div className="shrink-0 w-8 h-8 flex items-center justify-center text-gray-400">
                                     <Search size={18} />
                                 </div>
