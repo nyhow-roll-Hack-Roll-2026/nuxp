@@ -13,10 +13,11 @@ import { UserProgress, Achievement, User, Category, AchievementProof, CoopInvite
 import { MinecraftButton } from './components/MinecraftButton';
 import { getPersonalizedTip } from './services/geminiService';
 import { LoginModal } from './components/LoginModal';
-import { loginUser, loadUserProgress, saveUserProgress, getStoredUser, logoutUser, updateUserAvatar, updateUserBio, getOtherUserProfile } from './services/authService';
+import { loginUser, loadUserProgress, saveUserProgress, getStoredUser, logoutUser, updateUserAvatar, updateUserBio, getOtherUserProfile, loadUserData } from './services/authService';
 import { getPendingInvitesForUser } from './services/inviteService';
 import { DottedGlowBackground } from './components/ui/dotted-glow-background';
 import { createClient } from './src/lib/supabase/client';
+import { log } from 'console';
 
 // Create supabase client if env vars exist
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -169,6 +170,12 @@ const App: React.FC = () => {
 
         try {
             const savedData = await loadUserProgress(loggedUser.username);
+            const savedUser = await loadUserData();
+
+            // Use savedUser from Supabase if available (has complete profile data including bio)
+            const finalUser = savedUser || loggedUser;
+            console.log("Final user to set:", finalUser);
+
             if (savedData) {
                 // Ensure unlockedTrophies & proofs exists (migration support)
                 setProgress({
@@ -183,7 +190,7 @@ const App: React.FC = () => {
             }
 
             // Check for pending invites
-            checkPendingInvites(loggedUser.username);
+            checkPendingInvites(finalUser.username);
 
             // Ensure minimum 2 second loading screen
             const elapsedTime = Date.now() - startTime;
@@ -194,7 +201,10 @@ const App: React.FC = () => {
 
             // Set user and stop loading at the same time to avoid flicker
             setIsAuthLoading(false);
-            setUser(loggedUser);
+            setUser(finalUser);
+
+            // Update localStorage with the complete user data
+            localStorage.setItem('nus_mc_user', JSON.stringify(finalUser));
         } catch (e) {
             console.error("Failed to load progress", e);
             setUser(loggedUser);
@@ -472,7 +482,7 @@ const App: React.FC = () => {
         };
 
         const finalNodes: any[] = [];
-        
+
         ACHIEVEMENTS.forEach(ach => {
             const node = nodeMap.get(ach.id);
             const pos = HARDCODED_POSITIONS[ach.id];
@@ -485,8 +495,8 @@ const App: React.FC = () => {
                 // Place effectively near their category center
                 const region = CATEGORY_CENTERS[ach.category];
                 if (region) {
-                   node.x = region.x + (Math.random() * 200 - 100);
-                   node.y = region.y + (Math.random() * 200 - 100);
+                    node.x = region.x + (Math.random() * 200 - 100);
+                    node.y = region.y + (Math.random() * 200 - 100);
                 }
             }
             finalNodes.push(node);

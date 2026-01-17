@@ -15,6 +15,45 @@ const STORAGE_KEY_DATA = "nus_mc_data_";
 // Helper to get formatted error
 const getError = (err: any) => err?.message || "An unexpected error occurred";
 
+// Load User Data from Supabase profiles table
+export const loadUserData = async (): Promise<User | null> => {
+  if (!supabase) return null;
+
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    if (!authUser) return null;
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authUser.id)
+      .single();
+
+    if (error || !profile) {
+      console.log("Failed to load profile:", error);
+      return null;
+    }
+
+    const user: User = {
+      username: profile.username,
+      avatarUrl: profile.avatar_url || "/avatars/steve.png",
+      bio: profile.bio || "",
+      year: profile.year_of_study || profile.year || 1,
+      degree: profile.degree || "Undeclared",
+      createdAt: new Date(profile.created_at).getTime(),
+      updatedAt: new Date(profile.updated_at || profile.created_at).getTime(),
+    };
+
+    console.log("Loaded user data from Supabase:", user);
+    return user;
+  } catch (e) {
+    console.log("Error loading user data:", e);
+    return null;
+  }
+};
+
 // Login with Supabase Auth
 export const loginUser = async (
   username: string,

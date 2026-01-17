@@ -26,6 +26,7 @@ export const StatsDashboard: React.FC<Props> = ({
     isReadOnly = false,
     onBack
 }) => {
+    console.log(user)
 
     // Ref for the scrollable container to coordinate with TracingBeam
     const scrollRef = useRef<HTMLDivElement>(null);
