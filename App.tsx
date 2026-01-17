@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, X, Compass, Plus, Minus, Package, Search, List, Mail, Users } from 'lucide-react';
+import { Menu, X, Compass, Plus, Minus, Package, Search, List, Mail, Users, LogOut } from 'lucide-react';
 import { ACHIEVEMENTS, TROPHIES, CATEGORY_COLORS, TIPS } from './constants';
 import { AchievementIcon } from './components/AchievementIcon';
 import { AchievementModal } from './components/AchievementModal';
@@ -514,10 +514,10 @@ const App: React.FC = () => {
 
             setPan({ x: newPanX, y: newPanY });
             setAchievementSearchQuery(''); // Close/Clear search
-            
+
             // Wait for glide animation (700ms) to complete before opening modal
             setTimeout(() => {
-                setSelectedAchievement(node); 
+                setSelectedAchievement(node);
             }, 750);
         }
     };
@@ -603,7 +603,7 @@ const App: React.FC = () => {
             const dx = touch.clientX - dragStart.x;
             const dy = touch.clientY - dragStart.y;
             setPan({ x: panStart.x + dx, y: panStart.y + dy });
-        } 
+        }
         // 2. Pinch Zoom
         else if (e.touches.length === 2 && lastPinchDistance.current !== null) {
             const dist = Math.hypot(
@@ -622,7 +622,7 @@ const App: React.FC = () => {
             // Zoom towards center of screen to feel natural
             if (mapContainerRef.current) {
                 const { clientWidth, clientHeight } = mapContainerRef.current;
-                
+
                 // Current center in world coordinates
                 const centerX = (clientWidth / 2 - pan.x) / scale;
                 const centerY = (clientHeight / 2 - pan.y) / scale;
@@ -639,7 +639,7 @@ const App: React.FC = () => {
         }
     };
 
-    const handleTouchEnd = () => { 
+    const handleTouchEnd = () => {
         setIsDragging(false);
         lastPinchDistance.current = null;
     };
@@ -773,7 +773,8 @@ const App: React.FC = () => {
 
                     <div>
                         <h1 className="text-2xl md:text-4xl text-white drop-shadow-md tracking-wider flex items-center gap-2">
-                            <span className="text-mc-gold">❖</span>XP NUS
+                            <span className="text-mc-gold">❖</span>XP
+                            <span>NUS</span>
                             <span className='hidden sm:flex'>ACHIEVEMENTS</span>
                         </h1>
                         <p className="text-gray-400 text-xl mt-1 hidden lg:flex items-center gap-2">
@@ -808,6 +809,10 @@ const App: React.FC = () => {
 
                     <MinecraftButton onClick={() => setShowInventory(true)} className="items-center gap-2 h-13" variant="green">
                         <Package size={20} />
+                    </MinecraftButton>
+
+                    <MinecraftButton onClick={() => setShowInventory(true)} className="items-center gap-2 h-13" variant="red">
+                        <LogOut size={20} />
                     </MinecraftButton>
                 </div>
             </header>
@@ -1101,11 +1106,11 @@ const App: React.FC = () => {
                                             />
                                             {/* Default title tooltip (hidden if proof is showing to avoid clutter, or kept for consistency) */}
                                             {!hoveredProof && (
-                                                <div 
+                                                <div
                                                     className="absolute -bottom-8 left-1/2 whitespace-nowrap bg-black/90 backdrop-blur text-mc-gold px-3 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-mc-gold/50 font-pixel tracking-wide shadow-[0_0_10px_rgba(0,0,0,1)] flex items-center gap-2"
-                                                    style={{ 
-                                                        transform: `translateX(-50%) scale(${Math.max(1, 1 / scale)})`, 
-                                                        transformOrigin: 'top center' 
+                                                    style={{
+                                                        transform: `translateX(-50%) scale(${Math.max(1, 1 / scale)})`,
+                                                        transformOrigin: 'top center'
                                                     }}
                                                 >
                                                     {node.title}

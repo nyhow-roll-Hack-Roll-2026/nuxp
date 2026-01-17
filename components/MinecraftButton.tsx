@@ -2,7 +2,7 @@ import React from 'react';
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'default' | 'disabled' | 'green' | 'purple';
+  variant?: 'default' | 'disabled' | 'green' | 'purple' | 'red';
 }
 
 export const MinecraftButton: React.FC<Props> = ({ children, variant = 'default', className = '', ...props }) => {
@@ -20,6 +20,10 @@ export const MinecraftButton: React.FC<Props> = ({ children, variant = 'default'
     bgClass = 'bg-[#6B46C1] hover:bg-[#805AD5]';
     shadowLight = '#9F7AEA';
     shadowDark = '#44337A';
+  } else if (variant === 'red') {
+    bgClass = 'bg-[#C53030] hover:bg-[#E53E3E]';
+    shadowLight = '#F56565';
+    shadowDark = '#822727';
   }
 
   return (

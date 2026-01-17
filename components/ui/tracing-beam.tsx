@@ -15,7 +15,7 @@ export const TracingBeam = ({
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [svgHeight, setSvgHeight] = useState(0);
-  
+
   // Use the container's scroll position directly when a custom container is provided
   const { scrollYProgress } = useScroll({
     container: scrollContainerRef as React.RefObject<HTMLElement>,
@@ -31,23 +31,23 @@ export const TracingBeam = ({
   // Update height on resize
   useEffect(() => {
     const handleResize = () => {
-        if (contentRef.current) {
-            setSvgHeight(contentRef.current.offsetHeight);
-        }
+      if (contentRef.current) {
+        setSvgHeight(contentRef.current.offsetHeight);
+      }
     };
-    
+
     // Attach to window resize
     window.addEventListener('resize', handleResize);
-    
+
     // Also attach to a ResizeObserver for the content itself (handling dynamic content loading)
     const resizeObserver = new ResizeObserver(() => handleResize());
     if (contentRef.current) {
-        resizeObserver.observe(contentRef.current);
+      resizeObserver.observe(contentRef.current);
     }
 
     return () => {
-        window.removeEventListener('resize', handleResize);
-        resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -70,8 +70,8 @@ export const TracingBeam = ({
   const dotBackgroundColor = useTransform(scrollYProgress, [0, 0.05], ["#D4AF37", "#ffffff"]);
   const dotBorderColor = useTransform(scrollYProgress, [0, 0.05], ["#D4AF37", "#ffffff"]);
   const headerBoxShadow = useTransform(
-    scrollYProgress, 
-    [0, 0.05], 
+    scrollYProgress,
+    [0, 0.05],
     ["rgba(0, 0, 0, 0.24) 0px 3px 8px", "none"]
   );
 
@@ -146,7 +146,7 @@ export const TracingBeam = ({
           </defs>
         </svg>
       </div>
-      <div ref={contentRef} className="pl-12 md:pl-16">{children}</div>
+      <div ref={contentRef} className="pl-12 md:pl-16 pe-8">{children}</div>
     </motion.div>
   );
 };
