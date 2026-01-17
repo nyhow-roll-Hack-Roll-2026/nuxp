@@ -117,11 +117,11 @@ export const CardItem = ({
       // Strategy: The container handles the tilt. CardItem handles depth. 
       // If we want a static 45deg rotation, we should apply it to a parent or child div, NOT this 3D transform which animates.
       // OR we just animate back to the base rotation.
-      
+
       // Let's modify behavior: Reset to 0 offsets, but keep base rotation if implied?
       // Actually, standard behavior is reset to 0. We will wrap the inner content in a rotation div if we need static rotation,
       // OR we just pass 0 to props when not hovered? No.
-      
+
       // Fix: We will assume rotateZ passed here is the TARGET rotation. 
       // If we need static rotation, we do it in CSS on the child element.
       ref.current.style.transform = `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;
@@ -131,7 +131,7 @@ export const CardItem = ({
   return (
     <Tag
       ref={ref}
-      className={`w-fit transition duration-200 ease-linear ${className}`}
+      className={`transition duration-200 ease-linear ${className}`}
       {...rest}
     >
       {children}
