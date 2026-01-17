@@ -44,68 +44,137 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
       return;
     }
 
-    if (mode === 'signup' && !username.trim()) {
-      setError('Please enter a username');
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 500);
-      return;
-    }
+        if (mode === 'signup' && !username.trim()) {
+            setError('Please enter a username');
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+            return;
+        }
+
+        if (mode === 'signup' && (!yearOfStudy || !degree)) {
+            setError('Please select your year of study and degree');
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+            return;
+        }
 
     setLoading(true);
 
-    try {
-      if (mode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: username,
-              avatar_url: selectedAvatar
+        try {
+            if (mode === 'signup') {
+                console.log('=== Starting Signup Process ===');
+                console.log('Email:', email);
+                console.log('Year of Study:', yearOfStudy);
+                console.log('Degree:', degree);
+                
+                // Sign up the user without email confirmation for development
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            username: username,
+                            avatar_url: selectedAvatar,
+                            year_of_study: parseInt(yearOfStudy),
+                            degree: degree
+                        }
+                    }
+                });
+
+                console.log('Signup response:', { data, error });
+
+                if (error) {
+                    console.error('Signup error:', error);
+                    throw error;
+                }
+
+                // Check if user already exists (Supabase returns user but with identities empty)
+                if (data.user && !data.user.identities?.length) {
+                    setError('This email is already registered. Please try logging in instead.');
+                    setIsShaking(true);
+                    setTimeout(() => setIsShaking(false), 500);
+                    setLoading(false);
+                    return;
+                }
+
+                if (data.user && data.session) {
+                    console.log('User created successfully:', data.user.id);
+                    console.log('Session established:', data.session);
+                    
+                    // Wait for auth to settle
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Insert profile with all required fields
+                    console.log('Creating profile...');
+                    const { data: insertData, error: profileError } = await supabase
+                        .from('profiles')
+                        .insert({
+                            id: data.user.id,
+                            username: username,
+                            avatar_url: selectedAvatar,
+                            bio: null,
+                            year: parseInt(yearOfStudy),
+                            degree: degree,
+                            total_xp: 0,
+                            unlocked_ids: [],
+                            unlocked_trophies: [],
+                            proofs: {}
+                        })
+                        .select();
+                    
+                    if (profileError) {
+                        console.error('Profile error details:', {
+                            message: profileError.message,
+                            details: profileError.details,
+                            hint: profileError.hint,
+                            code: profileError.code
+                        });
+                        setError(`Failed to create profile: ${profileError.message}. You can still use the app but your data won't be saved.`);
+                    } else {
+                        console.log('Profile created successfully!', insertData);
+                    }
+
+                    onLogin(username, selectedAvatar, isCustom);
+                } else if (data.user && !data.session) {
+                    // Email confirmation required
+                    setError('Please check your email to confirm your account before logging in.');
+                    setIsShaking(true);
+                    setTimeout(() => setIsShaking(false), 500);
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+                if (data.user) {
+                    const displayName = data.user.user_metadata?.username || email.split('@')[0];
+                    const avatarUrl = data.user.user_metadata?.avatar_url || selectedAvatar;
+                    onLogin(displayName, avatarUrl, false);
+                }
             }
-          }
-        });
-        
-        if (error) throw error;
-        if (data.user) {
-          onLogin(username, selectedAvatar, isCustom);
-        }
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        
-        if (error) throw error;
-        if (data.user) {
-          const displayName = data.user.user_metadata?.username || email.split('@')[0];
-          const avatarUrl = data.user.user_metadata?.avatar_url || selectedAvatar;
-          onLogin(displayName, avatarUrl, false);
-        }
-      }
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 500);
-    } finally {
-      setLoading(false);
-    }
-  };
+        } catch (err: any) {
+            // Check for specific error messages
+            let errorMessage = err.message || 'Authentication failed';
 
-  const handleGuestLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!username.trim()) {
-        setIsShaking(true);
-        setError('Please enter a username to start!');
-        setTimeout(() => setIsShaking(false), 500);
-        return;
-    }
-    
-    setLoading(true);
-    onLogin(username, selectedAvatar, isCustom);
-  };
+            if (mode === 'signup' && (
+                err.message?.includes('User already registered') ||
+                err.message?.includes('already registered') ||
+                err.message?.includes('already been registered')
+            )) {
+                errorMessage = 'This email is already registered. Please try logging in instead.';
+            }
+
+            setError(errorMessage);
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+        } finally {
+            setLoading(false);
+        }
+    };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
