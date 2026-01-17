@@ -118,8 +118,8 @@ export const ACHIEVEMENTS: Achievement[] = [
     globalCompletionRate: 20,
     xp: 500,
     qrCodes: [
-        { id: "fass", label: "FASS (The Deck)" },
-        { id: "com", label: "COM (Computing)" },
+        { id: "fass", label: "FASS (The Deck)", secret: "W3LC0ME_TO_F4S5" },
+        { id: "com", label: "COM (Computing)", secret: "WE1COME_7O_COM" },
         { id: "science", label: "Science (Frontier)" },
         { id: "biz", label: "Business (Mochtar Riady)" },
         { id: "engine", label: "Engineering (Techno)" },

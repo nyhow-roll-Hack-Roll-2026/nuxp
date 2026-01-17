@@ -496,7 +496,7 @@ const App: React.FC = () => {
             'merch_collector': { x: -378, y: 712 },
             'watch_performance': { x: 282, y: 382 },
             'tour_guide': { x: -482, y: 342 },
-            'all_faculties': { x: 400, y: 1000 },
+            'all_faculties': { x: 450, y: 1300 },
             'bus_master': { x: 0, y: 1050 },
             'marathon': { x: -80, y: 300 },
             'canteen_hopper': { x: 250, y: 620 },

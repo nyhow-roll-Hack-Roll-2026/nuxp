@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2, Users, QrCode, CheckCircle, MapPin } from 'lucide-react';
+import jsQR from 'jsqr';
 import { Achievement, AchievementType, GuestbookEntry, AchievementProof } from '../types';
 import { MinecraftButton } from './MinecraftButton';
 import { AchievementIcon } from './AchievementIcon';
@@ -416,15 +417,89 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                                         accept="image/*" 
                                         className="hidden" 
                                         onChange={(e) => {
-                                            if (e.target.files?.[0] && onQrScan && achievement.qrCodes) {
-                                                // Find first unscanned
-                                                const nextUnscanned = achievement.qrCodes.find(q => !scannedQrCodes.includes(q.id));
-                                                if (nextUnscanned) {
-                                                    onQrScan(achievement.id, nextUnscanned.id);
-                                                }
-                                                // Clear input
+                                            console.log("File input change triggered");
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+
+                                            console.log("File selected:", file.name, file.type, file.size);
+                                            
+                                            // Validation: Only allow JPG/PNG
+                                            // We check both MIME type and extension to be safe
+                                            const isJpgOrPng = (file.type === 'image/jpeg' || file.type === 'image/png') || 
+                                                             /\.(jpg|jpeg|png)$/i.test(file.name);
+
+                                            if (!isJpgOrPng) {
+                                                alert("Unsupported file format.\n\nOnly JPG or PNG files are supported.");
                                                 e.target.value = '';
+                                                return;
                                             }
+
+                                            if (onQrScan && achievement.qrCodes) {
+                                                const objectUrl = URL.createObjectURL(file);
+                                                const image = new Image();
+                                                
+                                                image.onerror = (err) => {
+                                                    console.error("Image load error. File Type:", file.type);
+                                                    alert("Failed to load image. The format might be unsupported by your browser.");
+                                                    URL.revokeObjectURL(objectUrl);
+                                                };
+
+                                                image.onload = () => {
+                                                    console.log("Image loaded successfully", image.width, image.height);
+                                                    try {
+                                                        const canvas = document.createElement('canvas');
+                                                        const MAX_SIZE = 1200; // Slightly increased
+                                                        let width = image.width;
+                                                        let height = image.height;
+                                                        
+                                                        // Resize logic
+                                                        if (width > MAX_SIZE || height > MAX_SIZE) {
+                                                            const scale = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+                                                            width = Math.floor(width * scale);
+                                                            height = Math.floor(height * scale);
+                                                        }
+
+                                                        canvas.width = width;
+                                                        canvas.height = height;
+                                                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                                                        
+                                                        if (ctx) {
+                                                            ctx.drawImage(image, 0, 0, width, height);
+                                                            URL.revokeObjectURL(objectUrl); // Free memory immediately after draw
+
+                                                            const imageData = ctx.getImageData(0, 0, width, height);
+                                                            console.log("Scanning imageData:", width, "x", height);
+                                                            
+                                                            const code = jsQR(imageData.data, imageData.width, imageData.height);
+                                                            
+                                                            if (code) {
+                                                                const scannedText = code.data.trim();
+                                                                console.log("Found QR code:", scannedText);
+                                                                
+                                                                const matchedQr = achievement.qrCodes?.find(q => q.secret === scannedText);
+                                                                
+                                                                if (matchedQr) {
+                                                                    if (scannedQrCodes.includes(matchedQr.id)) {
+                                                                        alert(`You have already scanned ${matchedQr.label}!`);
+                                                                    } else {
+                                                                        onQrScan(achievement.id, matchedQr.id);
+                                                                    }
+                                                                } else {
+                                                                    alert(`Invalid QR Code for this mission.\n\nScanned: "${scannedText}"\n\n(This code does not match any required location)`);
+                                                                }
+                                                            } else {
+                                                                alert("No QR code found in this image.\n\nTips:\n• Ensure the QR code is clear and focused\n• Try cropping the image to just the QR code\n• Avoid glare or shadows");
+                                                            }
+                                                        }
+                                                    } catch (error) {
+                                                        console.error("Scan processing error:", error);
+                                                        alert("Error processing image.");
+                                                    }
+                                                };
+                                                image.src = objectUrl;
+                                            }
+                                            // Always clear value to allow re-selection
+                                            e.target.value = '';
                                         }}
                                      />
                                  </div>

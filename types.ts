@@ -53,7 +53,7 @@ export interface Achievement {
   xp: number;
   resources?: AchievementResource[]; // Unlockable real-world utility
   guestbook?: GuestbookEntry[]; // Social legacy
-  qrCodes?: { id: string; label: string }[]; // New: Required QR codes to unlock
+  qrCodes?: { id: string; label: string; secret?: string }[]; // New: Required QR codes to unlock
 }
 
 export interface Trophy {
