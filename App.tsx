@@ -438,7 +438,7 @@ const App: React.FC = () => {
             'seminar_sage': { x: -721, y: -843 },
             'Competition_Challenger': { x: -882, y: -212 },
             'all_nighter': { x: -312, y: -598 },
-            'first_exam': { x: -754, y: -421 },
+            'first_exam': { x: -592, y: -200 },
             'deans_list': { x: -1023, y: -712 },
             'Mentor_Master': { x: -482, y: -892 },
 

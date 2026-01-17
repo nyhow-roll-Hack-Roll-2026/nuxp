@@ -7,6 +7,7 @@ import { ACHIEVEMENTS, CATEGORY_COLORS, TROPHIES } from '../constants';
 import { PixelatedCanvas } from './ui/pixelated-canvas';
 import { TracingBeam } from './ui/tracing-beam';
 import { MinecraftButton } from './MinecraftButton';
+import { GlowingEffect } from './ui/glowing-effect';
 
 interface Props {
     progress: UserProgress;
@@ -93,7 +94,7 @@ export const StatsDashboard: React.FC<Props> = ({
                         </div>
                     ) : (
                         <h3 className="text-2xl text-white border-b border-white/10 mb-4 pb-2 flex justify-between items-center">
-                            <span className="tracking-wide">Student Profile</span>
+                            <span className="tracking-wide ml-4">Player Profile</span>
                         </h3>
                     )}
 
@@ -188,8 +189,10 @@ export const StatsDashboard: React.FC<Props> = ({
                         <h4 className="text-mc-gold text-center mb-2 tracking-wider text-lg flex items-center justify-center gap-2">
                             <span className='text-sm pt-1'>🏆</span> TROPHY CASE
                         </h4>
-                        <div className="bg-black/40 border-2 border-mc-border p-2 rounded-lg">
-                            <div className="grid grid-cols-4 gap-2">
+                        <div className="relative group/trophycase rounded-lg">
+                            <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} className="group-hover/trophycase:opacity-100" />
+                            <div className="bg-black/40 border-2 border-mc-border p-2 rounded-lg relative z-10">
+                                <div className="grid grid-cols-4 gap-2">
                                 {TROPHIES.map(trophy => {
                                     const isUnlocked = progress.unlockedTrophies?.includes(trophy.id);
                                     const Icon = (Icons as any)[trophy.iconName] || Icons.Trophy;
@@ -219,6 +222,7 @@ export const StatsDashboard: React.FC<Props> = ({
                                     )
                                 })}
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -262,7 +266,7 @@ export const StatsDashboard: React.FC<Props> = ({
                     {/* Unlock History List */}
                     <div className="space-y-2">
                         <h4 className="text-lg text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <Clock size={12} /> Recent History
+                            <Clock size={12} />History
                         </h4>
                         {recentUnlocks.length === 0 ? (
                             <p className="text-center text-gray-600 text-xs py-4">No data.</p>
