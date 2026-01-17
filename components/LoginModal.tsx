@@ -63,22 +63,42 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
             return;
         }
 
+        if (mode === 'signup' && (!yearOfStudy || !degree)) {
+            setError('Please select your year of study and degree');
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+            return;
+        }
+
         setLoading(true);
 
         try {
             if (mode === 'signup') {
+                console.log('=== Starting Signup Process ===');
+                console.log('Email:', email);
+                console.log('Year of Study:', yearOfStudy);
+                console.log('Degree:', degree);
+                
+                // Sign up the user without email confirmation for development
                 const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
                     options: {
                         data: {
                             username: username,
-                            avatar_url: selectedAvatar
+                            avatar_url: selectedAvatar,
+                            year_of_study: parseInt(yearOfStudy),
+                            degree: degree
                         }
                     }
                 });
 
-                if (error) throw error;
+                console.log('Signup response:', { data, error });
+
+                if (error) {
+                    console.error('Signup error:', error);
+                    throw error;
+                }
 
                 // Check if user already exists (Supabase returns user but with identities empty)
                 if (data.user && !data.user.identities?.length) {
@@ -89,8 +109,51 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
                     return;
                 }
 
-                if (data.user) {
+                if (data.user && data.session) {
+                    console.log('User created successfully:', data.user.id);
+                    console.log('Session established:', data.session);
+                    
+                    // Wait for auth to settle
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Insert profile with all required fields
+                    console.log('Creating profile...');
+                    const { data: insertData, error: profileError } = await supabase
+                        .from('profiles')
+                        .insert({
+                            id: data.user.id,
+                            username: username,
+                            avatar_url: selectedAvatar,
+                            bio: null,
+                            year: parseInt(yearOfStudy),
+                            degree: degree,
+                            total_xp: 0,
+                            unlocked_ids: [],
+                            unlocked_trophies: [],
+                            proofs: {}
+                        })
+                        .select();
+                    
+                    if (profileError) {
+                        console.error('Profile error details:', {
+                            message: profileError.message,
+                            details: profileError.details,
+                            hint: profileError.hint,
+                            code: profileError.code
+                        });
+                        setError(`Failed to create profile: ${profileError.message}. You can still use the app but your data won't be saved.`);
+                    } else {
+                        console.log('Profile created successfully!', insertData);
+                    }
+
                     onLogin(username, selectedAvatar, isCustom);
+                } else if (data.user && !data.session) {
+                    // Email confirmation required
+                    setError('Please check your email to confirm your account before logging in.');
+                    setIsShaking(true);
+                    setTimeout(() => setIsShaking(false), 500);
+                    setLoading(false);
+                    return;
                 }
             } else {
                 const { data, error } = await supabase.auth.signInWithPassword({
