@@ -94,12 +94,11 @@ export const StatsDashboard: React.FC<Props> = ({
                     ) : (
                         <h3 className="text-2xl text-white border-b border-white/10 mb-4 pb-2 flex justify-between items-center">
                             <span className="tracking-wide">Student Profile</span>
-                            <button onClick={onLogout} className="text-red-400 text-sm hover:text-red-300 transition-colors">[Quit]</button>
                         </h3>
                     )}
 
                     {/* User Avatar Section */}
-                    <div className="bg-black/50 p-3 rounded border border-white/5 mb-6 flex flex-col gap-4 items-center shadow-inner">
+                    <div className="bg-black/50 rounded border border-white/5 mb-6 flex flex-col gap-4 items-center shadow-inner">
                         <div
                             className="bg-black border border-white/20 w-[80px] h-[80px] shrink-0 overflow-hidden relative group rounded-sm shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-default"
                         >
@@ -126,19 +125,19 @@ export const StatsDashboard: React.FC<Props> = ({
                         </div>
 
                         <div className="overflow-hidden text-center sm:text-left flex-1 min-w-0 w-full">
-                            <h2 className="text-2xl text-white truncate font-bold">{user?.username || 'Player'}</h2>
+                            <h2 className="text-2xl text-center text-mc-gold truncate font-bold leading-none">{user?.username || 'Player'}</h2>
 
-                            <div className="text-mc-yellow text-sm tracking-wide">Year {user?.year} Student</div>
-                            <h2>{user?.degree}</h2>
+                            <div className="text-xl text-center tracking-wide leading-tight">Year {user?.year} Student</div>
+                            <h2 className='text-xl text-center leading-tight tracking-wide'>{user?.degree}</h2>
                         </div>
                     </div>
 
                     {/* Bio / Status Section */}
                     <div className="mb-6 relative group">
                         <div className="flex justify-between items-end mb-1">
-                            <h4 className="text-gray-400 text-xs uppercase tracking-widest">Player Status</h4>
+                            <div className="text-gray-400 text-md tracking-widest">PLAYER STATUS</div>
                             {!isReadOnly && !isEditingBio && (
-                                <button onClick={() => setIsEditingBio(true)} className="text-gray-500 hover:text-white transition-colors">
+                                <button onClick={() => setIsEditingBio(true)} className="text-gray-500 hover:text-white transition-colors my-auto">
                                     <Edit3 size={12} />
                                 </button>
                             )}
@@ -148,19 +147,19 @@ export const StatsDashboard: React.FC<Props> = ({
                                 <textarea
                                     value={bioText}
                                     onChange={(e) => setBioText(e.target.value)}
-                                    className="w-full bg-black/50 text-white border border-mc-gold/50 p-2 text-sm font-pixel focus:outline-none focus:border-mc-gold h-20 resize-none rounded-sm"
+                                    className="w-full bg-black/50 text-white border border-mc-gold/50 p-2 text-md font-pixel focus:outline-none focus:border-mc-gold h-20 resize-none rounded-sm"
                                     maxLength={120}
                                 />
                                 <button
                                     onClick={handleSaveBio}
-                                    className="absolute bottom-2 right-2 text-green-400 hover:text-green-300 bg-black/80 rounded p-1"
+                                    className="absolute bottom-4 right-2 text-green-400 hover:text-green-300 bg-black/80 rounded p-1"
                                 >
                                     <Save size={14} />
                                 </button>
                             </div>
                         ) : (
                             <div
-                                className="w-full bg-white/5 border border-white/5 p-3 text-sm text-gray-300 italic rounded-sm min-h-[3rem] relative"
+                                className="w-full bg-white/5 border border-white/5 p-3 text-md text-gray-300 italic rounded-sm min-h-[3rem] relative"
                             >
                                 "{bioText}"
                             </div>
@@ -168,17 +167,17 @@ export const StatsDashboard: React.FC<Props> = ({
                     </div>
 
                     {/* Level Bar */}
-                    <div className="mb-6">
-                        <div className="flex justify-between text-gray-300 text-sm mb-1">
-                            <span>Level {level}</span>
+                    <div className="mb-8">
+                        <div className="flex justify-between text-gray-400 text-md mb-1 tracking-widest">
+                            <span>LEVEL {level}</span>
                             <span>{progress.totalXp} XP</span>
                         </div>
-                        <div className="w-full bg-black/60 h-6 border border-white/20 relative rounded-sm overflow-hidden">
+                        <div className="w-full bg-black/60 h-8 border border-white/20 relative rounded-sm overflow-hidden">
                             <div
                                 className="bg-gradient-to-r from-green-600 to-green-500 h-full absolute left-0 top-0 transition-all duration-500"
                                 style={{ width: `${Math.min(100, progress.totalXp % 100)}%` }}
                             ></div>
-                            <div className="absolute inset-0 flex items-center justify-center text-xs text-white drop-shadow-md z-10 font-bold tracking-widest">
+                            <div className="absolute inset-0 flex items-center justify-center text-md text-white drop-shadow-md z-10 font-bold tracking-widest">
                                 {progress.totalXp % 100} / 100
                             </div>
                         </div>
@@ -187,7 +186,7 @@ export const StatsDashboard: React.FC<Props> = ({
                     {/* Trophy Case */}
                     <div className="mb-6">
                         <h4 className="text-mc-gold text-center mb-2 tracking-wider text-lg flex items-center justify-center gap-2">
-                            <span>🏆</span> Trophy Case
+                            <span className='text-sm pt-1'>🏆</span> TROPHY CASE
                         </h4>
                         <div className="bg-black/40 border-2 border-mc-border p-2 rounded-lg">
                             <div className="grid grid-cols-4 gap-2">
@@ -224,14 +223,14 @@ export const StatsDashboard: React.FC<Props> = ({
                     </div>
 
                     {/* Stats Chart */}
-                    <div className="min-h-[200px] relative bg-black/20 border border-white/5 rounded-lg p-2 mb-6">
-                        <h4 className="text-gray-300 text-center mb-2 tracking-wider text-lg">Breakdown</h4>
+                    <div className="min-h-[160px] relative bg-black/20 border border-white/5 rounded-lg">
+                        <h4 className="text-gray-400 text-center tracking-wider text-lg">BREAKDOWN</h4>
                         {data.length === 0 ? (
                             <div className="flex items-center justify-center h-full text-gray-500 text-center p-4">
                                 Unlock achievements to generate stats...
                             </div>
                         ) : (
-                            <ResponsiveContainer width="100%" height={150}>
+                            <ResponsiveContainer width="100%" height={120}>
                                 <PieChart>
                                     <Pie
                                         data={data}
@@ -256,13 +255,13 @@ export const StatsDashboard: React.FC<Props> = ({
                         )}
                     </div>
 
-                    <div className="text-center text-gray-500 text-sm pb-2 border-b border-white/10 mb-4">
+                    <div className="text-center text-gray-400 text-lg pb-8 border-b border-white/10 mb-4 leading-tight">
                         {progress.unlockedIds.length} / {ACHIEVEMENTS.length} Achievements Unlocked
                     </div>
 
                     {/* Unlock History List */}
                     <div className="space-y-2">
-                        <h4 className="text-xs text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <h4 className="text-lg text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                             <Clock size={12} /> Recent History
                         </h4>
                         {recentUnlocks.length === 0 ? (
@@ -275,10 +274,10 @@ export const StatsDashboard: React.FC<Props> = ({
                                             {React.createElement((Icons as any)[ach.iconName] || Icons.Check, { size: 14, className: 'text-white' })}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-white text-sm truncate leading-none">{ach.title}</p>
-                                            <p className="text-[10px] text-gray-500 truncate">{ach.category}</p>
+                                            <p className="text-white text-lg truncate leading-none">{ach.title}</p>
+                                            <p className="text-md text-gray-500 truncate">{ach.category}</p>
                                         </div>
-                                        <span className="text-xs text-green-400">+{ach.xp}xp</span>
+                                        <span className="text-md text-green-400">+{ach.xp}xp</span>
                                     </div>
                                 ))}
                             </div>
