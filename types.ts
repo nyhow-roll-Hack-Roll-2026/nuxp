@@ -69,4 +69,6 @@ export interface User {
   createdAt: number;
   isCustomAvatar?: boolean;
   bio?: string;
+  year?: number;
+  semester?: number;
 }
