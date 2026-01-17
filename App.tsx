@@ -666,16 +666,16 @@ const App: React.FC = () => {
 
                     <div>
                         <h1 className="text-2xl md:text-4xl text-white drop-shadow-md tracking-wider flex items-center gap-2">
-                            <span className="text-mc-gold">❖</span> NUS ACHIEVEMENTS
+                            <span className="text-mc-gold">❖</span>XP NUS ACHIEVEMENTS
                         </h1>
-                        <p className="text-gray-400 text-sm md:text-lg mt-1 hidden md:flex items-center gap-2">
+                        <p className="text-gray-400 text-xl mt-1 hidden md:flex items-center gap-2">
                             <span className="text-mc-green animate-pulse">●</span> {tip}
                         </p>
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <div className="text-right hidden md:block">
-                        <p className="text-xs text-mc-goldDim uppercase tracking-widest">Current Session</p>
+                    <div className="text-right hidden md:block my-auto me-2">
+                        <p className="text-xl text-mc-gold uppercase tracking-widest leading-none">Current Session</p>
                         <p className="text-xl text-gray-200">Year {user?.year}, Sem 1</p>
                     </div>
 
@@ -699,7 +699,6 @@ const App: React.FC = () => {
 
                     <MinecraftButton onClick={() => setShowInventory(true)} className="hidden sm:flex items-center gap-2 h-13" variant="green">
                         <Package size={20} />
-                        INVENTORY
                     </MinecraftButton>
                 </div>
             </header>
@@ -723,15 +722,15 @@ const App: React.FC = () => {
                 {showMobileStats && (
                     <div className="fixed inset-0 z-[100] lg:hidden flex">
                         {/* Backdrop */}
-                        <div 
+                        <div
                             className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                             onClick={() => setShowMobileStats(false)}
                         ></div>
-                        
+
                         {/* Sidebar */}
                         <aside className="relative w-80 h-full bg-neutral-900 border-r border-mc-gold/50 shadow-2xl animate-in slide-in-from-left duration-300 flex flex-col">
                             <div className="p-4 border-b border-white/10 flex justify-end">
-                                <button 
+                                <button
                                     onClick={() => setShowMobileStats(false)}
                                     className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded"
                                 >
