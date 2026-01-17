@@ -22,10 +22,6 @@
 
 - **💾 Memory & Guestbook**: Upload photos/videos as "proof" of your achievements and sign the global guestbook to leave your mark on the server history.
 
-- **🎒 Resource Inventory**: Unlocking specific achievements grants access to useful real-world resources, such as "Senior's Stash" PDFs, Telegram bot links, and study playlists.
-
-- **🤖 AI-Powered Lore**: Dynamic, gamified flavor text and tips powered by **Google Gemini API**.
-
 ## 🛠️ Tech Stack
 
 - **Frontend**: React (TypeScript), Tailwind CSS
@@ -38,8 +34,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone 
-   cd 
+   git clone https://github.com/nyhow-roll-Hack-Roll-2026/xpnus.git
+   cd xpnus
    ```
 
 2. **Install dependencies**
