@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Menu, X, Compass, Plus, Minus, Package, Search } from 'lucide-react'; 
-import { ACHIEVEMENTS, TROPHIES, CATEGORY_COLORS } from './constants';
+import { ACHIEVEMENTS, TROPHIES, CATEGORY_COLORS, TIPS } from './constants';
 import { AchievementIcon } from './components/AchievementIcon';
 import { AchievementModal } from './components/AchievementModal';
 import { StatsDashboard } from './components/StatsDashboard';
@@ -10,7 +10,7 @@ import { UserProgress, Achievement, User, Category, AchievementProof } from './t
 import { MinecraftButton } from './components/MinecraftButton';
 import { getPersonalizedTip } from './services/geminiService';
 import { LoginModal } from './components/LoginModal';
-import { loginUser, loadUserProgress, saveUserProgress, getStoredUser, logoutUser, updateUserBio, getOtherUserProfile } from './services/authService';
+import { loginUser, loadUserProgress, saveUserProgress, getStoredUser, logoutUser, updateUserAvatar, updateUserBio, getOtherUserProfile } from './services/authService';
 import { DottedGlowBackground } from './components/ui/dotted-glow-background';
 import { createClient } from './src/lib/supabase/client';
 
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   // --- Game State ---
   const [progress, setProgress] = useState<UserProgress>({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {} });
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
-  const [tip, setTip] = useState<string>("Loading tip...");
+  const [tip, setTip] = useState<string>(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
   const [filterCategory, setFilterCategory] = useState<Category | 'ALL'>('ALL');
   const [showMobileStats, setShowMobileStats] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
@@ -128,11 +128,6 @@ const App: React.FC = () => {
           setIsAuthLoading(false);
       }
   };
-
-  // 3. Load Tip
-  useEffect(() => {
-    getPersonalizedTip(progress.unlockedIds.length).then(setTip);
-  }, [progress.unlockedIds.length]);
 
   const handleLogin = async (username: string, avatarUrl: string, isCustomAvatar: boolean) => {
       const loggedUser = await loginUser(username, avatarUrl, isCustomAvatar);
@@ -473,10 +468,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-neutral-950 text-gray-100 relative overflow-hidden">
+    <div className="h-screen w-screen flex flex-col bg-[#1a1a1a] text-gray-100 relative overflow-hidden">
       
       {/* Background with Dotted Glow */}
-      <div className="absolute inset-0 z-0 bg-neutral-950">
+      <div className="absolute inset-0 z-0 bg-[#1a1a1a]">
         <DottedGlowBackground 
            className="opacity-50"
            gap={30}
