@@ -26,6 +26,7 @@ export const StatsDashboard: React.FC<Props> = ({
     isReadOnly = false,
     onBack
 }) => {
+    console.log(user)
 
     // Ref for the scrollable container to coordinate with TracingBeam
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -193,36 +194,36 @@ export const StatsDashboard: React.FC<Props> = ({
                             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} className="group-hover/trophycase:opacity-100" />
                             <div className="bg-black/40 border-2 border-mc-border p-2 rounded-lg relative z-10">
                                 <div className="grid grid-cols-4 gap-2">
-                                {TROPHIES.map(trophy => {
-                                    const isUnlocked = progress.unlockedTrophies?.includes(trophy.id);
-                                    const Icon = (Icons as any)[trophy.iconName] || Icons.Trophy;
+                                    {TROPHIES.map(trophy => {
+                                        const isUnlocked = progress.unlockedTrophies?.includes(trophy.id);
+                                        const Icon = (Icons as any)[trophy.iconName] || Icons.Trophy;
 
-                                    return (
-                                        <div
-                                            key={trophy.id}
-                                            className={`
+                                        return (
+                                            <div
+                                                key={trophy.id}
+                                                className={`
                                     aspect-square relative flex items-center justify-center border-2 rounded-sm group
                                     ${isUnlocked ? 'bg-white/5 border-white/10' : 'bg-black/60 border-white/5'}
                                 `}
-                                        >
-                                            <Icon
-                                                size={20}
-                                                color={isUnlocked ? trophy.color : '#333'}
-                                                className={`transition-all duration-300 ${isUnlocked ? 'drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]' : 'opacity-30'}`}
-                                            />
+                                            >
+                                                <Icon
+                                                    size={20}
+                                                    color={isUnlocked ? trophy.color : '#333'}
+                                                    className={`transition-all duration-300 ${isUnlocked ? 'drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]' : 'opacity-30'}`}
+                                                />
 
-                                            {/* Tooltip */}
-                                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-40 bg-black border border-mc-gold text-center p-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                                                <p className={`text-sm font-bold ${isUnlocked ? 'text-white' : 'text-gray-500'}`}>{trophy.title}</p>
-                                                <p className="text-xs text-gray-400 leading-tight mt-1">{isUnlocked ? trophy.description : "???"}</p>
+                                                {/* Tooltip */}
+                                                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-40 bg-black border border-mc-gold text-center p-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                                    <p className={`text-sm font-bold ${isUnlocked ? 'text-white' : 'text-gray-500'}`}>{trophy.title}</p>
+                                                    <p className="text-xs text-gray-400 leading-tight mt-1">{isUnlocked ? trophy.description : "???"}</p>
+                                                </div>
+
+                                                {!isUnlocked && <Lock size={10} className="absolute top-1 right-1 text-gray-700" />}
                                             </div>
-
-                                            {!isUnlocked && <Lock size={10} className="absolute top-1 right-1 text-gray-700" />}
-                                        </div>
-                                    )
-                                })}
+                                        )
+                                    })}
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
 
