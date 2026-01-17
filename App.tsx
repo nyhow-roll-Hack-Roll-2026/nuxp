@@ -616,14 +616,14 @@ const App: React.FC = () => {
                         <p className="text-xl text-gray-200">Year {user?.year}, Sem 1</p>
                     </div>
 
-                    <MinecraftButton onClick={() => setShowSearch(true)} className="flex items-center gap-2 h-12" variant="default">
+                    <MinecraftButton onClick={() => setShowSearch(true)} className="flex items-center gap-2 h-13" variant="default">
                         <Search size={19} />
                     </MinecraftButton>
 
                     {/* Co-op Invites Mail Button */}
                     <MinecraftButton
                         onClick={() => setShowPendingInvites(true)}
-                        className="relative flex items-center gap-2 h-12"
+                        className="relative flex items-center gap-2 h-13"
                         variant="purple"
                     >
                         <Mail size={19} />
@@ -634,7 +634,7 @@ const App: React.FC = () => {
                         )}
                     </MinecraftButton>
 
-                    <MinecraftButton onClick={() => setShowInventory(true)} className="hidden sm:flex items-center gap-2 h-12" variant="green">
+                    <MinecraftButton onClick={() => setShowInventory(true)} className="hidden sm:flex items-center gap-2 h-13" variant="green">
                         <Package size={20} />
                         INVENTORY
                     </MinecraftButton>
