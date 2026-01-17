@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, X, Compass, Plus, Minus, Package, Search } from 'lucide-react'; 
+import { Menu, X, Compass, Plus, Minus, Package, Search, List } from 'lucide-react'; 
 import { ACHIEVEMENTS, TROPHIES, CATEGORY_COLORS, TIPS } from './constants';
 import { AchievementIcon } from './components/AchievementIcon';
 import { AchievementModal } from './components/AchievementModal';
@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const [showMobileStats, setShowMobileStats] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showAchievementList, setShowAchievementList] = useState(false);
   
   // --- Achievement Search State ---
   const [achievementSearchQuery, setAchievementSearchQuery] = useState('');
@@ -576,8 +577,14 @@ const App: React.FC = () => {
                 </div>
             </div>
 
+            {/* Top Right Controls: List & Search */}
+            <div className="absolute top-4 right-4 z-30 pointer-events-auto flex flex-row items-start gap-2">
+                {/* List Button */}
+                <MinecraftButton onClick={() => setShowAchievementList(true)} className="w-10 h-10 flex items-center justify-center !p-0 bg-black/80 border-white/20" variant="default">
+                    <List size={20} />
+                </MinecraftButton>
+
             {/* Achievement Search Overlay (Expandable) */}
-            <div className="absolute top-4 right-4 z-30 pointer-events-auto">
                 <div className="relative group">
                     <div className={`flex items-center bg-black/80 border-2 rounded-sm p-1 shadow-lg backdrop-blur-sm transition-all duration-300 ${achievementSearchQuery ? 'border-mc-gold w-64' : 'border-white/20 w-10 hover:w-64 focus-within:w-64 overflow-hidden'}`}>
                             <div className="shrink-0 w-8 h-8 flex items-center justify-center text-gray-400">
