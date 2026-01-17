@@ -5,6 +5,7 @@ import { MinecraftButton } from './MinecraftButton';
 import { AchievementIcon } from './AchievementIcon';
 import { getStoredUser } from '../services/authService';
 import { PixelatedCanvas } from './ui/pixelated-canvas';
+import { ShareModal } from './ShareModal';
 
 interface Props {
   achievement: Achievement;
@@ -20,7 +21,8 @@ interface Props {
 
 export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof, coopPartner, onOpenInviteModal }) => {
   const [activeTab, setActiveTab] = useState<'INFO' | 'MEMORY' | 'GUESTBOOK'>('INFO');
-  
+  const [showShare, setShowShare] = useState(false);
+
   // Use the lore directly from the achievement
   const lore = achievement.lore || 'The ancient scrolls are silent on this matter.';
   
@@ -201,8 +203,8 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
-      
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200 ${showShare ? 'pointer-events-none' : ''}`} style={showShare ? { opacity: 0.18, filter: 'blur(2px)'} : undefined}>
+
       <div className={`relative w-full max-w-lg bg-neutral-900 border-2 shadow-[0_0_40px_rgba(0,0,0,0.5)] rounded-lg overflow-hidden flex flex-col max-h-[90vh] ${isLocked ? 'border-gray-700' : 'border-mc-gold shadow-[0_0_40px_rgba(212,175,55,0.3)]'}`}>
             
             <div className={`p-4 flex justify-between items-center text-white border-b ${isLocked ? 'bg-neutral-800 border-gray-700' : 'bg-black/80 border-mc-goldDim'}`}>
@@ -396,8 +398,14 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                         )}
                         
                         {isUnlocked ? (
-                            <div className="w-full sm:w-auto flex justify-center items-center text-mc-gold font-bold text-2xl drop-shadow-sm bg-mc-gold/10 px-6 py-2 rounded border border-mc-gold/50">
-                                <span>✓ COMPLETED</span>
+                            <div className="flex items-center gap-3">
+                                <div className="w-full sm:w-auto flex justify-center items-center text-mc-gold font-bold text-2xl drop-shadow-sm bg-mc-gold/10 px-6 py-2 rounded border border-mc-gold/50">
+                                    <span>✓ COMPLETED</span>
+                                </div>
+                                <MinecraftButton onClick={() => setShowShare(true)} variant="green" className="px-4 py-2">SHARE</MinecraftButton>
+                                {showShare && (
+                                    <ShareModal achievement={achievement} onClose={() => setShowShare(false)} achievedAt={existingProof?.timestamp} />
+                                )}
                             </div>
                         ) : isCoop ? (
                             // Co-op Achievement - Show invite button with purple theme
