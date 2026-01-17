@@ -31,6 +31,7 @@ const App: React.FC = () => {
     const [progress, setProgress] = useState<UserProgress>({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {} });
     const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
     const [tip, setTip] = useState<string>(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+    const [loadingTip, setLoadingTip] = useState<string>(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
     const [filterCategory, setFilterCategory] = useState<Category | 'ALL'>('ALL');
     const [showMobileStats, setShowMobileStats] = useState(false);
     const [showInventory, setShowInventory] = useState(false);
@@ -139,8 +140,9 @@ const App: React.FC = () => {
 
     // 2. Load Data when User is set
     const handlePostLogin = async (loggedUser: User) => {
-        setUser(loggedUser);
-        setIsAuthLoading(true);
+        // Keep loading state true while we load data
+        const startTime = Date.now();
+
         try {
             const savedData = await loadUserProgress(loggedUser.username);
             if (savedData) {
@@ -158,9 +160,20 @@ const App: React.FC = () => {
 
             // Check for pending invites
             checkPendingInvites(loggedUser.username);
+
+            // Ensure minimum 2 second loading screen
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, 2000 - elapsedTime);
+            if (remainingTime > 0) {
+                await new Promise(resolve => setTimeout(resolve, remainingTime));
+            }
+
+            // Set user and stop loading at the same time to avoid flicker
+            setIsAuthLoading(false);
+            setUser(loggedUser);
         } catch (e) {
             console.error("Failed to load progress", e);
-        } finally {
+            setUser(loggedUser);
             setIsAuthLoading(false);
         }
     };
@@ -566,11 +579,61 @@ const App: React.FC = () => {
         return <LoginModal onLogin={handleLogin} />;
     }
 
-    if (!user) {
+    if (!user || isAuthLoading) {
         return (
-            <div className="h-screen w-screen flex items-center justify-center bg-[#1a1a1a] text-white">
-                <div className="text-center">
-                    <div className="animate-pulse text-mc-gold text-2xl mb-4">Loading...</div>
+            <div className="h-screen w-screen flex items-center justify-center bg-[#1a1a1a] text-white relative overflow-hidden">
+                {/* Background with Dotted Glow */}
+                <div className="absolute inset-0 z-0 bg-[#1a1a1a]">
+                    <DottedGlowBackground
+                        className="opacity-30"
+                        gap={30}
+                        radius={1.5}
+                        colorDarkVar="#333"
+                        glowColorDarkVar="#D4AF37"
+                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0a0a0a_100%)] pointer-events-none"></div>
+                </div>
+
+                {/* Loading Content */}
+                <div className="text-center z-10 px-4">
+                    {/* Animated Minecraft-style block */}
+                    <div className="mb-8 flex justify-center">
+                        <div className="relative w-20 h-20">
+                            {/* Rotating cube effect */}
+                            <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
+                                <div className="w-full h-full bg-gradient-to-br from-mc-gold to-mc-goldDim border-4 border-mc-gold/50 shadow-lg shadow-mc-gold/50"
+                                    style={{
+                                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                        transform: 'perspective(100px) rotateX(15deg)'
+                                    }}>
+                                </div>
+                            </div>
+                            {/* Inner pulsing glow */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-8 h-8 bg-mc-gold rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Loading Text */}
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold text-mc-gold mb-2 animate-pulse">
+                            Loading Your World...
+                        </h2>
+                        <div className="flex items-center justify-center gap-1">
+                            <div className="w-2 h-2 bg-mc-gold rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 bg-mc-gold rounded-full animate-bounce" style={{ animationDelay: '1000ms' }}></div>
+                            <div className="w-2 h-2 bg-mc-gold rounded-full animate-bounce" style={{ animationDelay: '2000ms' }}></div>
+                        </div>
+                    </div>
+
+                    {/* Game Tip */}
+                    <div className="max-w-md mx-auto mt-8 p-4 bg-black/40 border-2 border-mc-gold/30 rounded backdrop-blur-sm">
+                        <p className="text-mc-goldDim text-sm flex items-center justify-center gap-2">
+                            <span className="text-mc-green">💡</span>
+                            <span className="text-gray-300">{loadingTip}</span>
+                        </p>
+                    </div>
                 </div>
             </div>
         );
