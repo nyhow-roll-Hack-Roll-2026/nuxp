@@ -106,6 +106,26 @@ export const ACHIEVEMENTS: Achievement[] = [
       },
     ],
   },
+  {
+    id: "campus_explorer",
+    title: "Faculty Hopper",
+    description: "Visit key locations around campus.",
+    lore: "The teleportation waypoints are broken. You must walk.",
+    iconName: "Map",
+    type: AchievementType.TASK,
+    category: Category.EXPLORATION,
+    parentId: "nus_start",
+    globalCompletionRate: 20,
+    xp: 500,
+    qrCodes: [
+        { id: "fass", label: "FASS (The Deck)" },
+        { id: "com", label: "COM (Computing)" },
+        { id: "science", label: "Science (Frontier)" },
+        { id: "biz", label: "Business (Mochtar Riady)" },
+        { id: "engine", label: "Engineering (Techno)" },
+        { id: "sde", label: "SDE (Net Zero)" }
+    ]
+  },
 
   // ==========================================
   // ACADEMIC BRANCH (Blue)

@@ -53,6 +53,7 @@ export interface Achievement {
   xp: number;
   resources?: AchievementResource[]; // Unlockable real-world utility
   guestbook?: GuestbookEntry[]; // Social legacy
+  qrCodes?: { id: string; label: string }[]; // New: Required QR codes to unlock
 }
 
 export interface Trophy {
@@ -77,6 +78,7 @@ export interface UserProgress {
   totalXp: number;
   proofs: Record<string, AchievementProof>; // Map achievement ID to proof
   coopPartners?: Record<string, string>; // Map achievement ID to partner username
+  scannedQrCodes?: Record<string, string[]>; // New: Map achievement ID to list of scanned QR IDs
 }
 
 export interface User {

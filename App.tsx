@@ -182,11 +182,12 @@ const App: React.FC = () => {
                     ...savedData,
                     unlockedTrophies: savedData.unlockedTrophies || [],
                     proofs: savedData.proofs || {},
-                    coopPartners: savedData.coopPartners || {}
+                    coopPartners: savedData.coopPartners || {},
+                    scannedQrCodes: savedData.scannedQrCodes || {}
                 });
             } else {
                 // New save for this user
-                setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {} });
+                setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {}, scannedQrCodes: {} });
             }
 
             // Check for pending invites
@@ -363,6 +364,26 @@ const App: React.FC = () => {
         }
     };
 
+    const handleQrScan = (achievementId: string, qrCodeId: string) => {
+        // Find achievement to check max length (optional if we trust UI)
+        setProgress(prev => {
+            const currentScans = prev.scannedQrCodes?.[achievementId] || [];
+            if (currentScans.includes(qrCodeId)) return prev;
+
+            const newScans = [...currentScans, qrCodeId];
+            const updatedScanned = {
+                ...(prev.scannedQrCodes || {}),
+                [achievementId]: newScans
+            };
+
+            const updatedProgress = { ...prev, scannedQrCodes: updatedScanned };
+            if (user) {
+                saveUserProgress(user.username, updatedProgress);
+            }
+            return updatedProgress;
+        });
+    };
+
     const handleUpdateProof = async (id: string, proof: AchievementProof) => {
         if (isReadOnly) return;
 
@@ -475,7 +496,7 @@ const App: React.FC = () => {
             'merch_collector': { x: -378, y: 712 },
             'watch_performance': { x: 282, y: 382 },
             'tour_guide': { x: -482, y: 342 },
-            'all_faculties': { x: 454, y: 954 },
+            'all_faculties': { x: 400, y: 1000 },
             'bus_master': { x: 0, y: 1050 },
             'marathon': { x: -80, y: 300 },
             'canteen_hopper': { x: 250, y: 620 },
@@ -1044,12 +1065,16 @@ const App: React.FC = () => {
                                 }
 
                                 const isUnlocked = displayProgress.unlockedIds.includes(node.id);
+                                const hasQrReqs = (node.qrCodes?.length || 0) > 0;
 
                                 // Relaxed Logic: If unlocked, full opacity. If not, just dim.
                                 // We removed the parent dependency check for visibility so users can see "future" nodes easier in this city map
                                 let opacityClass = 'opacity-100';
-                                if (!isUnlocked) {
+                                if (!isUnlocked && !hasQrReqs) {
                                     opacityClass = 'opacity-60 grayscale brightness-75';
+                                } else if (!isUnlocked && hasQrReqs) {
+                                    // For QR progress, we keep color overlay vibrant
+                                    opacityClass = 'opacity-100';
                                 }
 
                                 return (
@@ -1086,13 +1111,45 @@ const App: React.FC = () => {
                                             }}
                                             onMouseLeave={() => setHoveredProof(null)}
                                         >
-                                            <AchievementIcon
-                                                iconName={node.iconName}
-                                                type={node.type}
-                                                category={node.category}
-                                                unlocked={isUnlocked}
-                                                size={32}
-                                            />
+                                            {(() => {
+                                                const scanned = displayProgress.scannedQrCodes?.[node.id] || [];
+                                                const qrCompleted = scanned.length;
+                                                const progressPercentage = hasQrReqs ? (qrCompleted / (node.qrCodes?.length || 1)) * 100 : 0;
+
+                                                return hasQrReqs && !isUnlocked ? (
+                                                    <div className="relative">
+                                                        {/* Locked Base */}
+                                                        <AchievementIcon
+                                                            iconName={node.iconName}
+                                                            type={node.type}
+                                                            category={node.category}
+                                                            unlocked={false}
+                                                            size={32}
+                                                        />
+                                                        {/* Unlocked Overlay (Clipped) */}
+                                                        <div
+                                                            className="absolute inset-0 transition-all duration-700 ease-in-out"
+                                                            style={{ clipPath: `inset(${100 - progressPercentage}% 0 0 0)` }}
+                                                        >
+                                                            <AchievementIcon
+                                                                iconName={node.iconName}
+                                                                type={node.type}
+                                                                category={node.category}
+                                                                unlocked={true}
+                                                                size={32}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <AchievementIcon
+                                                        iconName={node.iconName}
+                                                        type={node.type}
+                                                        category={node.category}
+                                                        unlocked={isUnlocked}
+                                                        size={32}
+                                                    />
+                                                );
+                                            })()}
                                             {/* Default title tooltip (hidden if proof is showing to avoid clutter, or kept for consistency) */}
                                             {!hoveredProof && (
                                                 <div
@@ -1145,6 +1202,8 @@ const App: React.FC = () => {
                         parentTitle={selectedAchievement.parentId ? ACHIEVEMENTS.find(a => a.id === selectedAchievement.parentId)?.title : undefined}
                         existingProof={displayProgress.proofs?.[selectedAchievement.id]}
                         coopPartner={displayProgress.coopPartners?.[selectedAchievement.id]}
+                        scannedQrCodes={displayProgress.scannedQrCodes?.[selectedAchievement.id] || []}
+                        onQrScan={handleQrScan}
                         onOpenInviteModal={() => setShowInviteModal(true)}
                     />
                 )}

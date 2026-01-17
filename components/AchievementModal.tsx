@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2, Users } from 'lucide-react';
+import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2, Users, QrCode, CheckCircle, MapPin } from 'lucide-react';
 import { Achievement, AchievementType, GuestbookEntry, AchievementProof } from '../types';
 import { MinecraftButton } from './MinecraftButton';
 import { AchievementIcon } from './AchievementIcon';
@@ -17,11 +17,23 @@ interface Props {
   existingProof?: AchievementProof;
   coopPartner?: string;
   onOpenInviteModal?: () => void;
+  scannedQrCodes?: string[];
+  onQrScan?: (achievementId: string, qrCodeId: string) => void;
 }
 
-export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof, coopPartner, onOpenInviteModal }) => {
-  const [activeTab, setActiveTab] = useState<'INFO' | 'MEMORY' | 'GUESTBOOK'>('INFO');
+export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof, coopPartner, onOpenInviteModal, scannedQrCodes = [], onQrScan }) => {
+  const [activeTab, setActiveTab] = useState<'INFO' | 'MEMORY' | 'GUESTBOOK' | 'CHECKIN'>('INFO');
   const [showShare, setShowShare] = useState(false);
+
+  // QR Logic
+  const hasQrReqs = (achievement.qrCodes?.length ?? 0) > 0;
+  const qrTotal = achievement.qrCodes?.length || 0;
+  const qrCompleted = scannedQrCodes.length;
+  const isQrComplete = hasQrReqs && qrCompleted >= qrTotal;
+  
+  // Progress Rotation for border (0 to 100%)
+  const progressPercentage = hasQrReqs ? (qrCompleted / qrTotal) * 100 : (status === 'UNLOCKED' ? 100 : 0);
+  const borderGradient = `conic-gradient(#10b981 ${progressPercentage}%, transparent ${progressPercentage}%)`;
 
   // Use the lore directly from the achievement
   const lore = achievement.lore || 'The ancient scrolls are silent on this matter.';
@@ -36,6 +48,13 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
   const [proofMedia, setProofMedia] = useState(''); 
   const [proofMediaType, setProofMediaType] = useState<'IMAGE' | 'VIDEO' | undefined>(undefined);
 
+  // Auto-switch to Check-In tab for QR quests
+  useEffect(() => {
+    if (hasQrReqs && !isQrComplete && status !== 'UNLOCKED') {
+        setActiveTab('CHECKIN');
+    }
+  }, [hasQrReqs, isQrComplete, status]);
+
   const [uploadError, setUploadError] = useState('');
   
   // Guestbook State
@@ -45,7 +64,7 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentUser = getStoredUser();
 
-  const handleTabChange = (tab: 'INFO' | 'MEMORY' | 'GUESTBOOK') => {
+  const handleTabChange = (tab: 'INFO' | 'MEMORY' | 'GUESTBOOK' | 'CHECKIN') => {
       setActiveTab(tab);
       // Pre-fill form if switching to Memory tab for editing
       if (tab === 'MEMORY' && existingProof) {
@@ -194,7 +213,9 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                      </MinecraftButton>
                 ) : (
                     <>
-                        <button onClick={() => setIsSubmitting(false)} className="flex-1 bg-gray-700 text-white font-bold py-2 rounded hover:bg-gray-600">CANCEL</button>
+                        {!isQrComplete && (
+                            <button onClick={() => setIsSubmitting(false)} className="flex-1 bg-gray-700 text-white font-bold py-2 rounded hover:bg-gray-600">CANCEL</button>
+                        )}
                         <MinecraftButton onClick={handleComplete} variant="green" className="flex-1">CONFIRM & UNLOCK</MinecraftButton>
                     </>
                 )}
@@ -225,14 +246,44 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                 <div className="absolute inset-0 bg-gradient-to-b from-mc-gold/5 to-transparent pointer-events-none"></div>
 
                 <div className="p-6 pb-2 flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                    <div className="flex-shrink-0 pt-2 transform hover:scale-105 transition-transform duration-300">
-                        <AchievementIcon 
-                            iconName={achievement.iconName} 
-                            type={achievement.type} 
-                            category={achievement.category}
-                            unlocked={isUnlocked} 
-                            size={48}
-                        />
+                    <div className="flex-shrink-0 pt-2 transform hover:scale-105 transition-transform duration-300 relative">
+                        {/* No background border anymore - Progress Fill */}
+                        
+                        <div className="relative z-10">
+                            {hasQrReqs && !isUnlocked ? (
+                                <div className="relative">
+                                    {/* Locked Base */}
+                                    <AchievementIcon 
+                                        iconName={achievement.iconName} 
+                                        type={achievement.type} 
+                                        category={achievement.category}
+                                        unlocked={false} 
+                                        size={40}
+                                    />
+                                    {/* Unlocked Overlay (Clipped) */}
+                                    <div 
+                                        className="absolute inset-0 transition-all duration-700 ease-in-out"
+                                        style={{ clipPath: `inset(${100 - progressPercentage}% 0 0 0)` }}
+                                    >
+                                        <AchievementIcon 
+                                            iconName={achievement.iconName} 
+                                            type={achievement.type} 
+                                            category={achievement.category}
+                                            unlocked={true} 
+                                            size={40}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <AchievementIcon 
+                                    iconName={achievement.iconName} 
+                                    type={achievement.type} 
+                                    category={achievement.category}
+                                    unlocked={isUnlocked} 
+                                    size={40}
+                                />
+                            )}
+                        </div>
                     </div>
                     
                     <div className="flex-1 space-y-2 text-center sm:text-left">
@@ -245,6 +296,12 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                                     <Users size={12} /> CO-OP
                                 </span>
                             )}
+                            {hasQrReqs && (
+                                <span className="text-[10px] font-bold font-mono px-2 py-1 rounded border border-blue-400 text-white bg-blue-700/80 flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                                    <div className="w-2.5 h-2.5 border border-dashed border-white/60 rounded-sm"></div>
+                                    {qrCompleted}/{qrTotal} SCANNED
+                                </span>
+                            )}
                         </div>
                         <p className={`text-xl leading-snug ${isLocked ? 'text-gray-600' : 'text-gray-300'}`}>
                             {isLocked ? '???' : achievement.description}
@@ -252,34 +309,154 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                     </div>
                 </div>
 
-                {isUnlocked && !isSubmitting && (
+                {(isUnlocked || (hasQrReqs && !isQrComplete)) && !isSubmitting && (
                     <div className="flex px-6 mt-4 border-b border-white/10 relative z-20 overflow-x-auto">
-                        <button 
-                            onClick={() => handleTabChange('INFO')}
-                            className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'INFO' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
-                        >
-                            <BookOpen size={16} /> INFO
-                        </button>
-                        <button 
-                            onClick={() => handleTabChange('MEMORY')}
-                            className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'MEMORY' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
-                        >
-                            <Edit3 size={16} /> MEMORY
-                        </button>
-                        <button 
-                            onClick={() => handleTabChange('GUESTBOOK')}
-                            className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'GUESTBOOK' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
-                        >
-                            <MessageSquare size={16} /> SIGNED ({localGuestbook.length})
-                        </button>
+                        {isUnlocked && (
+                            <button 
+                                onClick={() => handleTabChange('INFO')}
+                                className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'INFO' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
+                            >
+                                <BookOpen size={16} /> INFO
+                            </button>
+                        )}
+                        
+                        {hasQrReqs && !isQrComplete && (
+                            <button 
+                                onClick={() => handleTabChange('CHECKIN')}
+                                className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'CHECKIN' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
+                            >
+                                <QrCode size={14} /> CHECK-IN ({qrCompleted}/{qrTotal})
+                            </button>
+                        )}
+
+                        {isUnlocked && (
+                            <>
+                                <button 
+                                    onClick={() => handleTabChange('MEMORY')}
+                                    className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'MEMORY' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
+                                >
+                                    <Edit3 size={16} /> MEMORY
+                                </button>
+                                <button 
+                                    onClick={() => handleTabChange('GUESTBOOK')}
+                                    className={`px-4 py-2 text-sm font-bold flex items-center gap-2 whitespace-nowrap ${activeTab === 'GUESTBOOK' ? 'text-mc-gold border-b-2 border-mc-gold bg-white/5' : 'text-gray-500 hover:text-gray-300'}`}
+                                >
+                                    <MessageSquare size={16} /> SIGNED ({localGuestbook.length})
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             
                 <div className="p-6 pt-4 relative z-10 flex-1">
                     
-                    {isSubmitting && !isUnlocked && renderSubmissionForm(false)}
+                    {/* Render Submission/Unlock form if all QRs done OR normal unlock flow */}
+                    {(isSubmitting && !isUnlocked) || (isQrComplete && !isUnlocked) ? renderSubmissionForm(false) : null}
 
                     {activeTab === 'MEMORY' && isUnlocked && !isSubmitting && renderSubmissionForm(true)}
+                    
+                    {activeTab === 'CHECKIN' && hasQrReqs && (
+                         <div className="space-y-6 animate-in fade-in duration-300">
+                             
+                             {/* Scanner Area */}
+                             <div className="border border-white/5 bg-black/40 rounded-xl p-10 flex flex-col items-center justify-center gap-8 relative overflow-hidden group">
+                                 {/* Animation Keyframes */}
+                                 <style>
+                                     {`
+                                     @keyframes scan-line-up {
+                                         0% { top: 75%; opacity: 0; }
+                                         15% { opacity: 1; }
+                                         85% { opacity: 1; }
+                                         100% { top: 20%; opacity: 0; }
+                                     }
+                                     `}
+                                 </style>
+
+                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                 
+                                 {/* Scanner Target Graphic */}
+                                 <div className="relative w-20 h-20 border-[3px] border-dashed border-slate-700/50 rounded-2xl flex items-center justify-center bg-black/20">
+                                     {/* Inner Frame Brackets */}
+                                     <div className="relative w-12 h-12">
+                                         <div className="absolute top-0 left-0 w-4 h-4 border-t-[3px] border-l-[3px] border-slate-600 rounded-tl-md"></div>
+                                         <div className="absolute top-0 right-0 w-4 h-4 border-t-[3px] border-r-[3px] border-slate-600 rounded-tr-md"></div>
+                                         <div className="absolute bottom-0 left-0 w-4 h-4 border-b-[3px] border-l-[3px] border-slate-600 rounded-bl-md"></div>
+                                         <div className="absolute bottom-0 right-0 w-4 h-4 border-b-[3px] border-r-[3px] border-slate-600 rounded-br-md"></div>
+                                     </div>
+                                     
+                                     {/* Scanning Animation Line */}
+                                     {isQrComplete ? (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-green-500/10 rounded-2xl">
+                                            <CheckCircle size={24} className="text-green-500 opacity-60" />
+                                        </div>
+                                     ) : (
+                                         <div 
+                                            className="absolute left-4 right-4 h-0.5 bg-yellow-400/80 shadow-[0_0_15px_rgba(250,204,21,0.8),0_0_30px_rgba(250,204,21,0.4)] rounded-full z-20"
+                                            style={{ animation: 'scan-line-up 2.5s ease-in-out infinite' }}
+                                         ></div>
+                                     )}
+                                 </div>
+
+                                 <div className="text-center z-10 w-full max-w-xs">
+                                     <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">Scan a location QR code to progress.</p>
+                                     
+                                     <MinecraftButton 
+                                        variant="default" // Grey default
+                                        className="w-full h-12 !text-sm uppercase tracking-wide"
+                                        onClick={() => fileInputRef.current?.click()}
+                                     >
+                                         <div className="flex items-center justify-center gap-2">
+                                            <Camera size={16} />
+                                            <span className="font-semibold text-xl">Activate Camera / Upload</span>
+                                         </div>
+                                     </MinecraftButton>
+                                     <input 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        accept="image/*" 
+                                        className="hidden" 
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0] && onQrScan && achievement.qrCodes) {
+                                                // Find first unscanned
+                                                const nextUnscanned = achievement.qrCodes.find(q => !scannedQrCodes.includes(q.id));
+                                                if (nextUnscanned) {
+                                                    onQrScan(achievement.id, nextUnscanned.id);
+                                                }
+                                                // Clear input
+                                                e.target.value = '';
+                                            }
+                                        }}
+                                     />
+                                 </div>
+                             </div>
+
+                             {/* Mission Checklist */}
+                             <div className="flex-1 min-h-0 flex flex-col">
+                                 <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 px-1">Mission Checklist</h3>
+                                 <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
+                                     {achievement.qrCodes?.map(qr => {
+                                         const isScanned = scannedQrCodes.includes(qr.id);
+                                         return (
+                                             <div 
+                                                key={qr.id} 
+                                                className={`w-full text-left group flex items-center gap-3 py-2 px-3 rounded border transition-all duration-200 ${isScanned ? 'bg-green-900/10 border-green-500/20' : 'bg-white/5 border-white/5'}`}
+                                             >
+                                                 {/* Checkbox */}
+                                                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${isScanned ? 'bg-green-500 border-green-500' : 'border-white/20 bg-black/20'}`}>
+                                                     {isScanned && <CheckCircle size={12} className="text-black" strokeWidth={3} />}
+                                                 </div>
+                                                 
+                                                 {/* Text */}
+                                                 <span className={`font-mono text-xs ${isScanned ? 'text-gray-400 line-through' : 'text-gray-200'}`}>
+                                                     Scan QR at {qr.label}
+                                                 </span>
+                                             </div>
+                                         );
+                                     })}
+                                 </div>
+                             </div>
+                         </div>
+                    )}
 
                     {activeTab === 'INFO' && !isSubmitting && (
                         <div className="space-y-4 animate-in fade-in duration-300">
