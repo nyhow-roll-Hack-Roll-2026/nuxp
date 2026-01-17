@@ -67,7 +67,7 @@ export function SignUpForm({ className, onToggleView, ...props }: React.Componen
           .insert({
             id: authData.user.id,
             email: email,
-            year_of_study: parseInt(yearOfStudy),
+            year: parseInt(yearOfStudy),
             degree: degree,
           })
 
