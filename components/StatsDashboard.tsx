@@ -30,10 +30,18 @@ export const StatsDashboard: React.FC<Props> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState(user?.bio || "No status set.");
+  const [isScrollReady, setIsScrollReady] = useState(false);
 
   useEffect(() => {
     setBioText(user?.bio || "No status set.");
   }, [user?.bio]);
+
+  // Ensure scroll ref is ready before rendering TracingBeam
+  useEffect(() => {
+    if (scrollRef.current) {
+      setIsScrollReady(true);
+    }
+  }, []);
 
   // Calculate stats by category
   const data = Object.values(Category).map(cat => {
@@ -68,6 +76,7 @@ export const StatsDashboard: React.FC<Props> = ({
         className={`bg-black/80 backdrop-blur-xl border border-white/10 h-full flex flex-col rounded-lg shadow-2xl overflow-y-auto no-scrollbar relative pointer-events-auto ${isReadOnly ? 'border-mc-gold/50' : ''}`}
     >
       {/* TRACING BEAM WRAPPER for scroll tracking within the sidebar */}
+      {isScrollReady && (
       <TracingBeam className="pt-4 pr-4" scrollContainerRef={scrollRef}>
         
         {isReadOnly ? (
@@ -278,6 +287,7 @@ export const StatsDashboard: React.FC<Props> = ({
         <div className="h-10"></div>
 
       </TracingBeam>
+      )}
     </div>
   );
 };

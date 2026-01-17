@@ -10,17 +10,17 @@ export const TracingBeam = ({
 }: {
   children: React.ReactNode;
   className?: string;
-  scrollContainerRef?: React.RefObject<HTMLElement>;
+  scrollContainerRef?: React.RefObject<HTMLElement | null>;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    container: scrollContainerRef,
-    offset: ["start start", "end end"],
-  });
-
   const contentRef = useRef<HTMLDivElement>(null);
   const [svgHeight, setSvgHeight] = useState(0);
+  
+  // Use the container's scroll position directly when a custom container is provided
+  const { scrollYProgress } = useScroll({
+    container: scrollContainerRef as React.RefObject<HTMLElement>,
+    layoutEffect: false,
+  });
 
   useEffect(() => {
     if (contentRef.current) {
@@ -52,7 +52,7 @@ export const TracingBeam = ({
   }, []);
 
   const y1 = useSpring(
-    useTransform(scrollYProgress, [0, 0.8], [50, svgHeight]),
+    useTransform(scrollYProgress, [0, 1], [50, svgHeight]),
     {
       stiffness: 500,
       damping: 90,
