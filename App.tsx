@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, X, Compass, Plus, Minus, Package, Search, List } from 'lucide-react'; 
+import { Menu, X, Compass, Plus, Minus, Package, Search, List, Bell } from 'lucide-react'; 
 import { ACHIEVEMENTS, TROPHIES, CATEGORY_COLORS, TIPS } from './constants';
 import { AchievementIcon } from './components/AchievementIcon';
 import { AchievementModal } from './components/AchievementModal';
@@ -7,11 +7,14 @@ import { AchievementListModal } from './components/AchievementListModal';
 import { StatsDashboard } from './components/StatsDashboard';
 import { ResourcesModal } from './components/ResourcesModal';
 import { UserSearchModal } from './components/UserSearchModal';
-import { UserProgress, Achievement, User, Category, AchievementProof } from './types';
+import { InvitePartnerModal } from './components/InvitePartnerModal';
+import { PendingInvitesModal } from './components/PendingInvitesModal';
+import { UserProgress, Achievement, User, Category, AchievementProof, CoopInvite, AchievementType } from './types';
 import { MinecraftButton } from './components/MinecraftButton';
 import { getPersonalizedTip } from './services/geminiService';
 import { LoginModal } from './components/LoginModal';
 import { loginUser, loadUserProgress, saveUserProgress, getStoredUser, logoutUser, updateUserAvatar, updateUserBio, getOtherUserProfile } from './services/authService';
+import { getPendingInvitesForUser } from './services/inviteService';
 import { DottedGlowBackground } from './components/ui/dotted-glow-background';
 import { createClient } from './src/lib/supabase/client';
 
@@ -25,7 +28,7 @@ const App: React.FC = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   // --- Game State ---
-  const [progress, setProgress] = useState<UserProgress>({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {} });
+  const [progress, setProgress] = useState<UserProgress>({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {} });
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
   const [tip, setTip] = useState<string>(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
   const [filterCategory, setFilterCategory] = useState<Category | 'ALL'>('ALL');
@@ -33,6 +36,11 @@ const App: React.FC = () => {
   const [showInventory, setShowInventory] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showAchievementList, setShowAchievementList] = useState(false);
+  
+  // --- Co-op State ---
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showPendingInvites, setShowPendingInvites] = useState(false);
+  const [pendingInviteCount, setPendingInviteCount] = useState(0);
 
   // --- Achievement Search State ---
   const [achievementSearchQuery, setAchievementSearchQuery] = useState('');
@@ -118,18 +126,43 @@ const App: React.FC = () => {
               setProgress({ 
                   ...savedData, 
                   unlockedTrophies: savedData.unlockedTrophies || [],
-                  proofs: savedData.proofs || {}
+                  proofs: savedData.proofs || {},
+                  coopPartners: savedData.coopPartners || {}
               });
           } else {
               // New save for this user
-              setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {} });
+              setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {} });
           }
+          
+          // Check for pending invites
+          checkPendingInvites(loggedUser.username);
       } catch (e) {
           console.error("Failed to load progress", e);
       } finally {
           setIsAuthLoading(false);
       }
   };
+  
+  // Check for pending co-op invites
+  const checkPendingInvites = async (username: string) => {
+      try {
+          const invites = await getPendingInvitesForUser(username);
+          setPendingInviteCount(invites.length);
+      } catch (e) {
+          console.error("Failed to check invites", e);
+      }
+  };
+  
+  // Periodic check for new invites (every 30 seconds)
+  useEffect(() => {
+      if (!user) return;
+      
+      const interval = setInterval(() => {
+          checkPendingInvites(user.username);
+      }, 30000);
+      
+      return () => clearInterval(interval);
+  }, [user]);
 
   const handleLogin = async (username: string, avatarUrl: string, isCustomAvatar: boolean) => {
       const loggedUser = await loginUser(username, avatarUrl, isCustomAvatar);
@@ -139,10 +172,11 @@ const App: React.FC = () => {
   const handleLogout = () => {
       logoutUser();
       setUser(null);
-      setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {} });
+      setProgress({ unlockedIds: ['nus_start'], unlockedTrophies: [], totalXp: 0, proofs: {}, coopPartners: {} });
       setViewingProfile(null);
       setShowMobileStats(false);
       setHasCenteredOnce(false);
+      setPendingInviteCount(0);
   };
 
   const handleBioUpdate = async (newBio: string) => {
@@ -271,6 +305,47 @@ const App: React.FC = () => {
     if (user) {
         await saveUserProgress(user.username, newProgress);
     }
+  };
+  
+  // Handle accepting a co-op invite
+  const handleAcceptCoopInvite = async (invite: CoopInvite, achievement: Achievement) => {
+    if (!user) return;
+    
+    // Unlock the achievement for the accepting user
+    let newProgress = {
+        ...progress,
+        unlockedIds: [...progress.unlockedIds, invite.achievementId],
+        totalXp: progress.totalXp + achievement.xp,
+        proofs: invite.proof ? { ...progress.proofs, [invite.achievementId]: invite.proof } : progress.proofs,
+        coopPartners: { ...(progress.coopPartners || {}), [invite.achievementId]: invite.fromUsername }
+    };
+
+    // Check for Trophies
+    const newlyUnlockedTrophies = checkForTrophies(newProgress);
+    if (newlyUnlockedTrophies.length > 0) {
+        newProgress.unlockedTrophies = [...newProgress.unlockedTrophies, ...newlyUnlockedTrophies];
+        const trophyNames = newlyUnlockedTrophies.map(tid => TROPHIES.find(t => t.id === tid)?.title).join(", ");
+        alert(`🏆 TROPHY UNLOCKED: ${trophyNames}! Check your profile.`);
+    }
+
+    setProgress(newProgress);
+    
+    // Auto-Save to DB
+    await saveUserProgress(user.username, newProgress);
+    
+    // Update pending invite count
+    setPendingInviteCount(prev => Math.max(0, prev - 1));
+    
+    alert(`🎮 Co-op achievement "${achievement.title}" unlocked with ${invite.fromUsername}!`);
+    setShowPendingInvites(false);
+  };
+  
+  // Handle when user sends an invite
+  const handleInviteSent = (invite: CoopInvite) => {
+    // The sender also needs to unlock when the invite is accepted
+    // For now, we just close the modal - the unlock happens when the other person accepts
+    setShowInviteModal(false);
+    setSelectedAchievement(null);
   };
 
   // --- HORIZONTAL TREE LAYOUT ALGORITHM ---
@@ -503,11 +578,24 @@ const App: React.FC = () => {
                 </p>
             </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-2 sm:gap-4">
              <div className="text-right hidden md:block">
                  <p className="text-xs text-mc-goldDim uppercase tracking-widest">Current Session</p>
                  <p className="text-xl text-gray-200">Year 1, Sem 1</p>
              </div>
+             
+             {/* Pending Invites Bell */}
+             <button 
+                 onClick={() => setShowPendingInvites(true)} 
+                 className="relative flex items-center justify-center w-10 h-10 bg-black/60 border-2 border-purple-500/50 rounded hover:bg-purple-500/20 transition-colors"
+             >
+                <Bell size={20} className="text-purple-400" />
+                {pendingInviteCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                        {pendingInviteCount}
+                    </span>
+                )}
+             </button>
              
              <MinecraftButton onClick={() => setShowSearch(true)} className="flex items-center gap-2" variant="default">
                 <Search size={20} />
@@ -824,7 +912,47 @@ const App: React.FC = () => {
             onUpdateProof={handleUpdateProof}
             parentTitle={selectedAchievement.parentId ? ACHIEVEMENTS.find(a => a.id === selectedAchievement.parentId)?.title : undefined}
             existingProof={displayProgress.proofs?.[selectedAchievement.id]}
+            coopPartner={displayProgress.coopPartners?.[selectedAchievement.id]}
+            onOpenInviteModal={() => setShowInviteModal(true)}
         />
+      )}
+
+      {/* Co-op Invite Modal */}
+      {showInviteModal && selectedAchievement && user && (
+          <InvitePartnerModal
+              achievement={selectedAchievement}
+              currentUser={user}
+              onClose={() => setShowInviteModal(false)}
+              onInviteSent={(invite) => {
+                  console.log('Invite sent:', invite);
+                  setShowInviteModal(false);
+              }}
+          />
+      )}
+
+      {/* Pending Invites Modal */}
+      {showPendingInvites && user && (
+          <PendingInvitesModal
+              username={user.username}
+              onClose={() => setShowPendingInvites(false)}
+              onAcceptInvite={async (invite, achievement) => {
+                  // Unlock achievement for both users
+                  const newProgress = {
+                      ...progress,
+                      unlockedIds: [...progress.unlockedIds, achievement.id],
+                      totalXp: progress.totalXp + achievement.xp,
+                      proofs: invite.proof ? { ...progress.proofs, [achievement.id]: invite.proof } : progress.proofs,
+                      coopPartners: { ...(progress.coopPartners || {}), [achievement.id]: invite.fromUsername }
+                  };
+                  setProgress(newProgress);
+                  if (user) {
+                      await saveUserProgress(user.username, newProgress);
+                  }
+                  alert(`🎉 Achievement "${achievement.title}" unlocked with ${invite.fromUsername}!`);
+                  checkPendingInvites(user.username);
+                  setShowPendingInvites(false);
+              }}
+          />
       )}
 
       {showInventory && <ResourcesModal unlockedIds={displayProgress.unlockedIds} onClose={() => setShowInventory(false)} />}

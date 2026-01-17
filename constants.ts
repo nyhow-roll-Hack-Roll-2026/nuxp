@@ -360,5 +360,25 @@ export const ACHIEVEMENTS: Achievement[] = [
         category: Category.SOCIAL,
         globalCompletionRate: 1,
         xp: 200
+    },
+    // Co-op Achievement
+    {
+        id: 'pair_programming',
+        parentId: 'cc_activity',
+        title: 'Pair Programming',
+        description: 'Complete a coding assignment or hackathon with a partner. Both players must accept the invite.',
+        lore: 'Two heads are better than one. Bugs fear the duo.',
+        iconName: 'GitMerge',
+        type: AchievementType.COOP,
+        category: Category.SOCIAL,
+        globalCompletionRate: 8,
+        xp: 100,
+        resources: [
+            { label: 'NUS Hackers', url: 'https://nushackers.org', type: 'LINK' },
+            { label: 'Hackathon Calendar', url: '#', type: 'LINK' }
+        ],
+        guestbook: [
+            { username: 'CodeBuddy', date: '1w ago', message: 'Found my hackathon partner here!', avatarSeed: 'Ivan' }
+        ]
     }
 ];

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2 } from 'lucide-react';
+import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2, Users } from 'lucide-react';
 import { Achievement, AchievementType, GuestbookEntry, AchievementProof } from '../types';
 import { MinecraftButton } from './MinecraftButton';
 import { AchievementIcon } from './AchievementIcon';
@@ -14,13 +14,18 @@ interface Props {
   onUpdateProof?: (id: string, proof: AchievementProof) => void;
   parentTitle?: string;
   existingProof?: AchievementProof;
+  coopPartner?: string;
+  onOpenInviteModal?: () => void;
 }
 
-export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof }) => {
+export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof, coopPartner, onOpenInviteModal }) => {
   const [activeTab, setActiveTab] = useState<'INFO' | 'MEMORY' | 'GUESTBOOK'>('INFO');
   
   // Use the lore directly from the achievement
   const lore = achievement.lore || 'The ancient scrolls are silent on this matter.';
+  
+  // Check if this is a co-op achievement
+  const isCoop = achievement.type === AchievementType.COOP;
   
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -371,11 +376,36 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                 </div>
 
                 {activeTab === 'INFO' && !isSubmitting && (
-                    <div className="w-full flex justify-end p-6 pt-0 relative z-10">
+                    <div className="w-full flex flex-col gap-3 p-6 pt-0 relative z-10">
+                        {/* Co-op Partner Info (if unlocked with partner) */}
+                        {isUnlocked && coopPartner && (
+                            <div className="w-full bg-purple-900/30 border border-purple-500/50 rounded p-3 flex items-center gap-3">
+                                <Users size={20} className="text-purple-400" />
+                                <div>
+                                    <p className="text-purple-300 text-sm">Completed with partner:</p>
+                                    <p className="text-white font-bold">{coopPartner}</p>
+                                </div>
+                            </div>
+                        )}
+                        
                         {isUnlocked ? (
                             <div className="w-full sm:w-auto flex justify-center items-center text-mc-gold font-bold text-2xl drop-shadow-sm bg-mc-gold/10 px-6 py-2 rounded border border-mc-gold/50">
                                 <span>✓ COMPLETED</span>
                             </div>
+                        ) : isCoop ? (
+                            // Co-op Achievement - Show invite button with purple theme
+                            <button 
+                                onClick={() => !isLocked && onOpenInviteModal && onOpenInviteModal()} 
+                                disabled={isLocked}
+                                className={`w-full py-3 px-6 font-bold text-lg rounded border-2 flex items-center justify-center gap-3 transition-all duration-200 shadow-lg ${
+                                    isLocked 
+                                        ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' 
+                                        : 'bg-gradient-to-b from-purple-600 to-purple-800 border-purple-400 text-white hover:from-purple-500 hover:to-purple-700 hover:border-purple-300 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] active:scale-95'
+                                }`}
+                            >
+                                <Users size={20} />
+                                {isLocked ? "LOCKED" : "INVITE PARTNER"}
+                            </button>
                         ) : (
                             <MinecraftButton 
                                 onClick={() => !isLocked && handleComplete()} 

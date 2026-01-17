@@ -2,7 +2,22 @@ export enum AchievementType {
   ROOT = 'ROOT',
   TASK = 'TASK',
   GOAL = 'GOAL',
-  CHALLENGE = 'CHALLENGE'
+  CHALLENGE = 'CHALLENGE',
+  COOP = 'COOP'
+}
+
+// Co-op Invite Status
+export type CoopInviteStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
+
+export interface CoopInvite {
+  id: string;
+  achievementId: string;
+  fromUsername: string;
+  fromAvatarUrl: string;
+  toUsername: string;
+  status: CoopInviteStatus;
+  createdAt: number;
+  proof?: AchievementProof;
 }
 
 export enum Category {
@@ -61,6 +76,7 @@ export interface UserProgress {
   unlockedTrophies: string[];
   totalXp: number;
   proofs: Record<string, AchievementProof>; // Map achievement ID to proof
+  coopPartners?: Record<string, string>; // Map achievement ID to partner username
 }
 
 export interface User {
