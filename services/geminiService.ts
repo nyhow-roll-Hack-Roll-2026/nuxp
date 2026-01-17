@@ -3,7 +3,7 @@ import { Achievement } from "../types";
 
 // Initialize the API client
 // Note: In a real production app, you might proxy this through a backend to protect the key.
-const apiKey = process.env.API_KEY || "";
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const ai = new GoogleGenAI({ apiKey });
 
 export const getAchievementLore = async (

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { X, Lock, User as UserIcon, BookOpen, MessageSquare, Camera, Video, Type, Upload, Edit3, Save, Trash2 } from 'lucide-react';
 import { Achievement, AchievementType, GuestbookEntry, AchievementProof } from '../types';
 import { MinecraftButton } from './MinecraftButton';
-import { getAchievementLore } from '../services/geminiService';
 import { AchievementIcon } from './AchievementIcon';
 import { getStoredUser } from '../services/authService';
 import { PixelatedCanvas } from './ui/pixelated-canvas';
@@ -18,9 +17,10 @@ interface Props {
 }
 
 export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status, onUnlock, onUpdateProof, parentTitle, existingProof }) => {
-  const [lore, setLore] = useState<string>('Deciphering ancient texts...');
-  const [isLoadingLore, setIsLoadingLore] = useState(false);
   const [activeTab, setActiveTab] = useState<'INFO' | 'MEMORY' | 'GUESTBOOK'>('INFO');
+  
+  // Use the lore directly from the achievement
+  const lore = achievement.lore || 'The ancient scrolls are silent on this matter.';
   
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,20 +37,6 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentUser = getStoredUser();
-
-  useEffect(() => {
-    let isMounted = true;
-    const fetchLore = async () => {
-      setIsLoadingLore(true);
-      const text = await getAchievementLore(achievement);
-      if (isMounted) {
-        setLore(text);
-        setIsLoadingLore(false);
-      }
-    };
-    fetchLore();
-    return () => { isMounted = false; };
-  }, [achievement]);
 
   const handleTabChange = (tab: 'INFO' | 'MEMORY' | 'GUESTBOOK') => {
       setActiveTab(tab);
@@ -306,11 +292,7 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                             {!isLocked && (
                                 <div className="relative w-full bg-black/40 p-4 border border-mc-goldDim/50 rounded-lg shadow-inner">
                                     <p className="text-gray-300 text-lg font-mono italic">
-                                        {isLoadingLore ? (
-                                        <span className="animate-pulse text-gray-500">Loading lore from server...</span>
-                                        ) : (
                                         <span className="text-mc-yellow opacity-90">"{lore}"</span>
-                                        )}
                                     </p>
                                 </div>
                             )}
