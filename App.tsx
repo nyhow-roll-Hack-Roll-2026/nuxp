@@ -31,7 +31,7 @@ const Clock: React.FC = () => {
     }, []);
 
     return (
-        <p className="text-sm text-gray-200 font-mono tracking-wide leading-none">
+        <p className="text-sm text-gray-200 tracking-wide leading-none">
             {time.toLocaleString('en-SG', {
                 day: '2-digit',
                 month: 'short',
