@@ -655,54 +655,7 @@ const App: React.FC = () => {
                     />
                 </aside>
 
-                {/* Map Wrapper with Filters */}
-                <div className="relative flex-1 flex flex-col h-full overflow-hidden">
 
-                    {/* Filter Overlay */}
-                    <div className="absolute top-4 left-0 w-full px-4 z-30 pointer-events-auto overflow-x-auto no-scrollbar">
-                        <div className="flex gap-2 min-w-max pb-2">
-                            <MinecraftButton
-                                variant={filterCategory === 'ALL' ? 'green' : 'default'}
-                                onClick={() => setFilterCategory('ALL')}
-                                className="text-xs sm:text-sm px-3 py-1"
-                            >
-                                ALL
-                            </MinecraftButton>
-                            {Object.values(Category).map(cat => (
-                                <MinecraftButton
-                                    key={cat}
-                                    variant={filterCategory === cat ? 'green' : 'default'}
-                                    onClick={() => setFilterCategory(cat)}
-                                    className="text-xs sm:text-sm px-3 py-1"
-                                >
-                                    {cat.toUpperCase()}
-                                </MinecraftButton>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Top Right Controls: List & Search */}
-                    <div className="absolute top-4 right-4 z-30 pointer-events-auto flex flex-row items-start gap-2">
-                        {/* List Button */}
-                        <MinecraftButton onClick={() => setShowAchievementList(true)} className="w-10 h-10 flex items-center justify-center !p-0 bg-black/80 border-white/20" variant="default">
-                            <List size={20} />
-                        </MinecraftButton>
-
-                        {/* Achievement Search Overlay (Expandable) */}
-                        <div className="relative group">
-                            <div className={`flex items-center bg-black/80 border-2 rounded-sm p-1 shadow-lg backdrop-blur-sm transition-all duration-300 ${achievementSearchQuery ? 'border-mc-gold w-64' : 'border-white/20 w-10 hover:w-64 focus-within:w-64 overflow-hidden'}`}>
-                                <div className="shrink-0 w-8 h-8 flex items-center justify-center text-gray-400">
-                                    <Search size={18} />
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder="Find achievement..."
-                                    className="bg-transparent border-none text-white text-sm font-pixel focus:outline-none w-full placeholder-gray-500 ml-1"
-                                    value={achievementSearchQuery}
-                                    onChange={(e) => setAchievementSearchQuery(e.target.value)}
-                                />
-                            </div>
-                        </div>
 
 
                         {/* Map Wrapper with Filters */}
@@ -962,7 +915,6 @@ const App: React.FC = () => {
                             </main>
                         </div>
 
-                    </div>
 
       {/* Modals */}
       {selectedAchievement && (
@@ -1028,38 +980,6 @@ const App: React.FC = () => {
                             onSelectUser={handleSelectUserToView}
                         />
                     )}
-                </div>
-
-            </div >
-
-            {/* Modals */}
-            {
-                selectedAchievement && (
-                    <AchievementModal
-                        achievement={selectedAchievement}
-                        onClose={() => setSelectedAchievement(null)}
-                        status={
-                            displayProgress.unlockedIds.includes(selectedAchievement.id) ? 'UNLOCKED' : 'READY'
-                        }
-                        onUnlock={handleUnlock}
-                        onUpdateProof={handleUpdateProof}
-                        parentTitle={selectedAchievement.parentId ? ACHIEVEMENTS.find(a => a.id === selectedAchievement.parentId)?.title : undefined}
-                        existingProof={displayProgress.proofs?.[selectedAchievement.id]}
-                    />
-                )
-            }
-
-            {showInventory && <ResourcesModal unlockedIds={displayProgress.unlockedIds} onClose={() => setShowInventory(false)} />}
-
-            {
-                showSearch && user && (
-                    <UserSearchModal
-                        currentUsername={user.username}
-                        onClose={() => setShowSearch(false)}
-                        onSelectUser={handleSelectUserToView}
-                    />
-                )
-            }
 
             {
                 showAchievementList && (
@@ -1073,6 +993,7 @@ const App: React.FC = () => {
                     />
                 )
             }
+                </div>
         </div >
     );
 };
