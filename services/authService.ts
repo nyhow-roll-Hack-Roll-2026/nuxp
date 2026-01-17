@@ -331,13 +331,22 @@ export const searchUsers = async (query: string): Promise<User[]> => {
   }
 
   // Search Supabase for other users
-  if (supabase && query && query.length >= 2) {
+  if (supabase) {
     try {
-      const { data: profiles, error } = await supabase
+      let dbQuery = supabase
         .from("profiles")
         .select("*")
-        .ilike("username", `%${query}%`)
-        .limit(10);
+        .limit(20); // Increased limit
+
+      // If there is a query, filter by username
+      if (query) {
+         dbQuery = dbQuery.ilike("username", `%${query}%`);
+      } else {
+         // If no query, show recently active/created users
+         dbQuery = dbQuery.order('created_at', { ascending: false });
+      }
+
+      const { data: profiles, error } = await dbQuery;
 
       if (profiles && !error) {
         for (const profile of profiles) {
