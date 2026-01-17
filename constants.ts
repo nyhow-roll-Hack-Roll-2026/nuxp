@@ -73,6 +73,28 @@ export const TROPHIES: Trophy[] = [
     }
 ];
 
+export const ID_ICONS: Record<string, string> = {
+  nus_start: '/icons/pixels/map-pin.svg',
+  first_lecture: '/icons/pixels/book-open.svg',
+  first_tutorial: '/icons/pixels/hammer.svg',
+  library_scholar: '/icons/pixels/book.svg',
+  first_exam: '/icons/pixels/exam.svg',
+  study_session: '/icons/pixels/enchanting-table.svg',
+  seminar_sage: '/icons/pixels/clipboard.svg',
+  Competition_Challenger: '/icons/pixels/trophy.svg',
+  Mentor_Master: '/icons/pixels/briefcase.svg',
+  museum_visit: '/icons/pixels/music-note.svg',
+  gym_visit: '/icons/pixels/medal.svg',
+  pool_visit: '/icons/pixels/checkmark.svg',
+  club_event: '/icons/pixels/chat-bubble.svg',
+  pgp_mala: '/icons/pixels/heart.svg',
+  chick_visit: '/icons/pixels/star.svg',
+  merch_collector: '/icons/pixels/palette.svg',
+  watch_performance: '/icons/pixels/camera.svg',
+  tour_guide: '/icons/pixels/clock.svg',
+  // Add more mappings as needed
+};
+
 export const ACHIEVEMENTS: Achievement[] = [
   // NOTE: For 'iconName', you can use:
   // 1. A Lucide Icon name (e.g., 'BookOpen', 'Shield', 'Users') - No import needed.
@@ -115,11 +137,11 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'first_tutorial',
-    parentId: 'first_lecture',
-    title: 'Small Party Raid',
-    description: 'Attend your first tutorial.',
-    lore: 'Party size limited to 20. PvP is disabled in this zone.',
-    iconName: 'Scroll',
+    parentId: 'nus_start',
+    title: 'First Building Block',
+    description: 'Attend your first tutorial and learn the basics.',
+    lore: 'A small step towards mastery.',
+    iconName: '/icons/pixels/hammer.svg',
     type: AchievementType.TASK,
     category: Category.ACADEMIC,
     globalCompletionRate: 95,
@@ -130,21 +152,65 @@ export const ACHIEVEMENTS: Achievement[] = [
     parentId: 'first_lecture',
     title: 'Unlock Hidden Wisdom',
     description: 'Study in any school library.',
-    lore: 'A quiet sanctuary. Stamina regeneration increased by 10%.',
-    iconName: 'Library',
+    lore: 'Knowledge is power.',
+    iconName: '/icons/pixels/book.svg',
     type: AchievementType.TASK,
     category: Category.ACADEMIC,
     globalCompletionRate: 95,
     xp: 10
+  },
+  {
+    id: 'first_exam',
+    parentId: 'nus_start',
+    title: 'First Trial By Fire',
+    description: 'Take your first exam and excel in your course.',
+    lore: 'Survivability was not guaranteed.',
+    iconName: '/icons/pixels/exam.svg',
+    type: AchievementType.TASK,
+    category: Category.ACADEMIC,
+    globalCompletionRate: 95,
+    xp: 10,
+    resources: [
+        { label: 'LumiNUS Portal', url: 'https://luminus.nus.edu.sg', type: 'LINK' },
+        { label: 'Productivity Hacks Wiki', url: '#', type: 'LINK' }
+    ],
+    guestbook: [
+        { username: 'StudyGirl99', date: '2d ago', message: 'CS1101S is pain.', avatarSeed: 'Alice' },
+        { username: 'Mark_Z', date: '5d ago', message: 'Where is LT17??', avatarSeed: 'Bob' }
+    ]
   },
     // Sub-branch: Grinding/Studying
     {
         id: 'study_session',
         parentId: 'library_scholar',
         title: 'Enchanting Table',
-        description: 'Complete a continuous 10-hour study session.',
-        lore: 'Buff applied: "Flow State". Hunger bar depletion ignored for duration.',
-        iconName: 'Zap',
+        description: 'Complete a continuous 10-hour study session in the Central Library.',
+        lore: 'Buff applied: "Focused". Stamina draining rapidly.',
+        iconName: '/icons/pixels/enchanting-table.svg',
+    type: AchievementType.GOAL,
+    category: Category.ACADEMIC,
+    globalCompletionRate: 15,
+    xp: 50
+  },
+  {
+    id: 'seminar_sage',
+    parentId: 'first_lecture',
+    title: 'Seminar Sage',
+    description: 'Present at a seminar.',
+    lore: 'Sharing knowledge is the key to growth.',
+    iconName: '/icons/pixels/book-open.svg',
+    type: AchievementType.GOAL,
+    category: Category.ACADEMIC,
+    globalCompletionRate: 15,
+    xp: 50
+  },
+  {
+    id: 'Competition_Challenger',
+    parentId: 'first_lecture',
+    title: 'Competition Challenger',
+    description: 'Participate in an academic competition.',
+    lore: 'The thrill of competition sharpens the mind.',
+    iconName: '/icons/pixels/book-open.svg',
         type: AchievementType.GOAL,
         category: Category.ACADEMIC,
         globalCompletionRate: 15,
@@ -202,8 +268,8 @@ export const ACHIEVEMENTS: Achievement[] = [
         parentId: 'first_lecture',
         title: 'Boss Battle',
         description: 'Sit for your first physical final examination hall paper.',
-        lore: 'Boss music starts playing. No items allowed. Good luck.',
-        iconName: 'PenTool',
+        lore: 'A wild Final Paper appeared! It used Confusion. It\'s super effective!',
+        iconName: '/icons/pixels/exam.svg',
         type: AchievementType.TASK,
         category: Category.ACADEMIC,
         globalCompletionRate: 90,
@@ -581,3 +647,69 @@ export const ACHIEVEMENTS: Achievement[] = [
     xp: 100
   }
 ];
+
+// Explicitly adding missing 'lore' property to each Achievement object
+ACHIEVEMENTS.forEach((achievement, index) => {
+    if (!achievement.lore) {
+        ACHIEVEMENTS[index] = {
+            ...achievement,
+            lore: 'Default lore text.' // Explicitly added
+        };
+    }
+});
+
+ACHIEVEMENTS.forEach((achievement) => {
+  if (ID_ICONS[achievement.id]) {
+    achievement.iconName = ID_ICONS[achievement.id];
+  }
+});
+
+ACHIEVEMENTS.forEach((achievement) => {
+  if (!achievement.iconName || achievement.iconName.trim() === '') {
+    achievement.iconName = '/icons/pixels/default-icon.svg'; // Assign a default icon
+  }
+});
+
+ACHIEVEMENTS.forEach((achievement) => {
+  switch (achievement.id) {
+    case 'seminar_sage':
+      achievement.iconName = '/icons/pixels/clipboard.svg';
+      break;
+    case 'Competition_Challenger':
+      achievement.iconName = '/icons/pixels/trophy.svg';
+      break;
+    case 'first_exam':
+      achievement.iconName = '/icons/pixels/pencil.svg';
+      break;
+    case 'Mentor_Master':
+      achievement.iconName = '/icons/pixels/briefcase.svg';
+      break;
+    case 'museum_visit':
+      achievement.iconName = '/icons/pixels/music-note.svg';
+      break;
+    case 'gym_visit':
+      achievement.iconName = '/icons/pixels/medal.svg';
+      break;
+    case 'pool_visit':
+      achievement.iconName = '/icons/pixels/checkmark.svg';
+      break;
+    case 'club_event':
+      achievement.iconName = '/icons/pixels/chat-bubble.svg';
+      break;
+    case 'pgp_mala':
+      achievement.iconName = '/icons/pixels/heart.svg';
+      break;
+    case 'chick_visit':
+      achievement.iconName = '/icons/pixels/star.svg';
+      break;
+    case 'merch_collector':
+      achievement.iconName = '/icons/pixels/palette.svg';
+      break;
+    case 'watch_performance':
+      achievement.iconName = '/icons/pixels/camera.svg';
+      break;
+    case 'tour_guide':
+      achievement.iconName = '/icons/pixels/clock.svg';
+      break;
+  }
+});
