@@ -411,7 +411,7 @@ export const AchievementModal: React.FC<Props> = ({ achievement, onClose, status
                                      >
                                          <div className="flex items-center justify-center gap-2">
                                             <Camera size={16} />
-                                            <span className="font-semibold text-xl">Activate Camera / Upload</span>
+                                            <span className="font-semibold text-xs sm:text-base md:text-xl whitespace-nowrap">Activate Camera / Upload</span>
                                          </div>
                                      </MinecraftButton>
                                      <input 
