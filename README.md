@@ -1,3 +1,4 @@
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4950f49c-734e-4315-9905-9e16b6895de3" />
 
 # ⛏️ XP NUS: Digital Achievements
 
